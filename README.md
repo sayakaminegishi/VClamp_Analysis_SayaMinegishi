@@ -10,5 +10,5 @@ minegishis@brandeis.edu
 **"testscript_saya.m"** - example script that demonstrates how to use my scripts.
 
 
-### Original helper function scripts used by the main functions
+### Original helper function scripts used by the main functions:
 **"remove_transient.m** - FUNCTION for removing the initial transient in a specified trace (sweep). 
