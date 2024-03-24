@@ -1,6 +1,7 @@
 function [time, dt, data_i, data_v, cell_name] = loadVclampAbf(filename, props)
 
-% loadVclampAbf - Load I and V traces from an ABF file.
+% Cengiz Gunay (2024). loadVclampAbf (https://www.mathworks.com/matlabcentral/fileexchange/29018-loadvclampabf), MATLAB Central File Exchange. Retrieved March 23, 2024.
+%loadVclampAbf - Load I and V traces from an ABF file.
 %
 % Usage:
 % [time, dt, data_i, data_v, cell_name] = loadVclampAbf(filename, props)
