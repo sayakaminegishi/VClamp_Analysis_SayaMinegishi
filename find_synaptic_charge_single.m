@@ -1,7 +1,7 @@
 function T1 = find_synaptic_charge_single(filename,filenameExcelExport)
 
 % This function calculates the synaptic charge in each sweep (in pC) from a
-% given abf file.
+% given abf file. ASSUMING data is collected in pA!
 % filename: abf file of interest. mustbe in the same directory as this
 % script.
 % filenameExcelExport: name of excel file, in the form 'name_of_file.xlsx'
@@ -30,7 +30,7 @@ T1= array2table(multipleVariablesTable, 'VariableNames', myVarnames1); %stores i
 
 %go through each sweep, calculate area under curve
 
-data = data_i; %includes all sweeps
+data = data_i*1e-3; %includes all sweeps. converted pA->nA
 numsweeps = size(data_i,2); %get number of sweeps in data
 
 sweeps_to_analyze = 1:numsweeps; %specify the sweeps to analyze! 1:numsweeps to analyze all sweeps in file.
