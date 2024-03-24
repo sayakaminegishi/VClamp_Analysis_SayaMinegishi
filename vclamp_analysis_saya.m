@@ -30,7 +30,9 @@ synaptic_charge = zeros(length(numsweeps)); %array to store the total synaptic c
 
 for i = 1:numsweeps
     sweep_data = data(:,i); %trace for the sweep to analyze
-    
+   
+    %clean data
+    [sweep_data,timenew] = remove_transient(sweep_data,time);
     sweep_data = detrend(sweep_data, 1) + sweep_data(1); %Correct baseline - detrend shifts baseline to 0
 
     %analyze region
@@ -41,6 +43,9 @@ for i = 1:numsweeps
    
     M1= array2table(multipleVariablesRow1, 'VariableNames', myVarnames1);
     T1 = [T1; M1]; %final table
+
+    figure(1);
+    plot(timenew, sweep_data);
 
 
 end

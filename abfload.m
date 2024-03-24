@@ -357,6 +357,20 @@ if h.fFileVersionNumber>=2
   h.lActualAcqLength=DataSection.llNumEntries;
   h.lDataSectionPtr=DataSection.uBlockIndex;
   h.nNumPointsIgnored=0;
+
+  %below code added by Saya Minegishi 
+  %DACSection=ReadSection(fid,DACSection.uBlockIndex*BLOCKSIZE,DACInfo);
+  %h.fDACHoldingLevel = DACSection.fDACHoldingLevel; 
+
+  for i=1:DACSection.llNumEntries
+    DACsec(i)=ReadSection(fid,DACSection.uBlockIndex*BLOCKSIZE+DACSection.uBytes*(i-1),DACInfo);
+    ii=DACsec(i).nDACNum+1;
+   
+    h.fDACHoldingLevel(ii)=DACsec(i).fDACHoldingLevel;
+    
+  end
+
+
   % in ABF version < 2.0 h.fADCSampleInterval is the sampling interval
   % defined as
   %     1/(sampling freq*number_of_channels)
