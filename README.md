@@ -5,7 +5,7 @@ Created by Sayaka (Saya) Minegishi
 minegishis@brandeis.edu
 
 ## Description of each script
-**"find_synaptic_charge_single.m"** - FUNCTION for calculating synaptic charge in each sweep. Exports data in Excel format. 
+**"find_synaptic_charge_single.m"** - FUNCTION for calculating the total synaptic charge in each sweep. Exports data in Excel format. 
 
 **"testscript_saya.m"** - example script that demonstrates how to use my scripts.
 
