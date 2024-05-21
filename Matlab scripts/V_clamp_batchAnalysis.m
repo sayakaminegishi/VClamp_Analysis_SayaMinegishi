@@ -64,53 +64,54 @@ for i = 1:numel(file_names)
     file_names{i} = fullfile(tempDir, file_names{i});
 end
 
+Vclamp_analysis_singlecell(string(file_names{1}), 1)
 
 %table for summarizing Vclamp properties
 % amplitude is the amplitude of the current at the end of pulse. synaptic
 % charge is the area under the curve.
 
-%% TODO: EDIT FROM HERE BELOW
-myVarnamesSing= {'duration(ms)', 'amplitude(pA)', 'min_value(pA)', 'synaptic_charge(pA*ms)'};
-
-%MAKE A TABLE WITH EMPTY VALUES BUT WITH HEADERS
-% Define headers
-headersSingT= {'duration(ms)', 'amplitude(pA)', 'min_value(pA)', 'synaptic_charge(pA*ms)'};
-variableTypes = {'double', 'double', 'double', 'double'};
-
-% Create an empty table with headers
-singT = table('Size', [0, numel(headersSingT)], 'VariableNames', headersSingT, 'VariableTypes', variableTypes);
-singT(:,[1,7]) = []; %delete irrelevant columns for averaged data
-filesNotWorking = [];
-
-for n=1:size(file_names,2)
-
-    filename = string(file_names{n});
-    disp([int2str(n) '. Working on: ' filename])
-    try
-        [singletAnalysisRow, T] = CMA_burst_analysis_feb17(filename); %get burst and singlet analysis for thsi cell
-        singT = [singT; singletAnalysisRow];
-
-    catch
-        fprintf('Invalid data in iteration %s, skipped.\n', filename);
-        filesNotWorking = [filesNotWorking;filename];
-    end
-
-end
-
-%add cell name column to singT
-newcolumn = burstT(:,1); %first column of burstT
-singT = [newcolumn, singT];
-
-
-%%%%%%%%%%%%%%%%%
-display(singT)
-display(burstT)
-display(filesNotWorking)
-filesthatworkedcount = size(file_names,2) - size(filesNotWorking, 1);
-display(filesthatworkedcount + " out of " + size(file_names,2) + " traces analyzed successfully.");
-
-writetable(burstT, filenameExcelDoc, 'Sheet', 1); %export summary table for bursts to excel
-writetable(singT, filenameExcelDoc, 'Sheet', 2); %export summary table for singlets to excel
-
+% %% TODO: EDIT FROM HERE BELOW
+% myVarnamesSing= {'duration(ms)', 'amplitude(pA)', 'min_value(pA)', 'synaptic_charge(pA*ms)'};
+% 
+% %MAKE A TABLE WITH EMPTY VALUES BUT WITH HEADERS
+% % Define headers
+% headersSingT= {'duration(ms)', 'amplitude(pA)', 'min_value(pA)', 'synaptic_charge(pA*ms)'};
+% variableTypes = {'double', 'double', 'double', 'double'};
+% 
+% % Create an empty table with headers
+% singT = table('Size', [0, numel(headersSingT)], 'VariableNames', headersSingT, 'VariableTypes', variableTypes);
+% singT(:,[1,7]) = []; %delete irrelevant columns for averaged data
+% filesNotWorking = [];
+% 
+% for n=1:size(file_names,2)
+% 
+%     filename = string(file_names{n});
+%     disp([int2str(n) '. Working on: ' filename])
+%     try
+%         [singletAnalysisRow, T] = CMA_burst_analysis_feb17(filename); %get burst and singlet analysis for thsi cell
+%         singT = [singT; singletAnalysisRow];
+% 
+%     catch
+%         fprintf('Invalid data in iteration %s, skipped.\n', filename);
+%         filesNotWorking = [filesNotWorking;filename];
+%     end
+% 
+% end
+% 
+% %add cell name column to singT
+% newcolumn = burstT(:,1); %first column of burstT
+% singT = [newcolumn, singT];
+% 
+% 
+% %%%%%%%%%%%%%%%%%
+% display(singT)
+% display(burstT)
+% display(filesNotWorking)
+% filesthatworkedcount = size(file_names,2) - size(filesNotWorking, 1);
+% display(filesthatworkedcount + " out of " + size(file_names,2) + " traces analyzed successfully.");
+% 
+% writetable(burstT, filenameExcelDoc, 'Sheet', 1); %export summary table for bursts to excel
+% writetable(singT, filenameExcelDoc, 'Sheet', 2); %export summary table for singlets to excel
+% 
 
 end
