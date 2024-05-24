@@ -1,6 +1,16 @@
-% Vclamp_analysis_singlecell.m but testing with a specific file
+%TODO: ask Dr Van Hooser how to calculate area under signal curve
 
-filename = "/Users/sayakaminegishi/Documents/Birren Lab/Voltage clamp analysis/voltage clamp example data/2024_03_25_01_0000.abf"
+% Vclamp_analysis_singlecell.m but testing with a specific file
+addpath '/Users/sayakaminegishi/MATLAB/Projects/VClamp_Analysis_SayaMinegishi'
+
+filename = "/Users/sayakaminegishi/Documents/Birren Lab/Voltage clamp analysis/voltage clamp example data/2024_03_25_01_0000.abf";
+sweepstoanalyze = [1:10];
+%define region of interst to analyze (ms after start of recording)
+starttime = 200; 
+endtime = 1400; 
+
+%%%%%%%%%%%%%%%%%%%%%%
+
 myVarnames = {'sweep number', 'numSignals', 'avg_signal_duration(ms)', 'amplitude(pA)', 'min_value(pA)', 'synaptic_charge(pA*ms)'};
 
 multipleVariablesTable= zeros(0,size(myVarnames, 2));
@@ -22,38 +32,51 @@ si = dt*1000; %dt in microseconds
 
 %go through each sweep, calculate area under curve
 
-data = data_i*1e-3; %includes all sweeps,converted pA->nA
+data_old = data_i; %includes all sweeps, pA (TODO: should i convert to nA?)
 numsweeps = size(data_i,2); %get number of sweeps in data
 
+%% denoise
+data = smoothdata(data_old);
+
+% %% inspect signal
+% % Plot the signal and the x-intercepts
+% figure(100);
+% plot(time, data, 'b-', 'LineWidth', 1.5);
+% hold on;
+% plot(time, datanew, 'r-');
+% xlabel('x');
+% ylabel('y');
+% title('smoothing data');
+% legend('Original signal', 'De-noised');
+% grid on;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if(isempty(sweepstoanalyze))
     sweeps_to_analyze = 1:numsweeps; %specify the sweeps to analyze! 1:numsweeps to analyze all sweeps in file.
 else
     sweeps_to_analyze = sweepstoanalyze;
 end
 
-synaptic_charge = zeros(length(numsweeps)); %array to store the total synaptic charge per sweep. aka area under curve for each sweep
+synaptic_charge = zeros(1,length(numsweeps)); %array to store the total synaptic charge per sweep. aka area under curve for each sweep
 
 for i = 1:numel(sweeps_to_analyze)
+
     sweepnumber = sweeps_to_analyze(i);
     sweep_data_whole = data(:,sweepnumber); %trace for the sweep to analyze
    
-    %clean data
-    [sweep_data,timenew] = remove_transient(sweep_data_whole,time);
     %sweep_data = detrend(sweep_data, 1) + sweep_data(1); %Correct baseline - detrend shifts baseline to 0. TODO: maybe don't include.
-    starttime=timenew(1);
-    endtime = timenew(end);
-    %extract the region of interest
-    starttime_originalIdx = find(time==starttime); %convert start time in ms to index in sweep_data_whole
-    endtime_originalIdx = find(time == endtime); %endtime in ms to index in sweep_data_whole
-    transient_duration = 2643; %TODO: +/- 1? test these vals if it gives error
-    transient_duration_ms = sampleunits_to_ms(si, transient_duration); %in ms
     
-    starttime_newIdx = starttime_originalIdx-transient_duration; %start time on data with transient removed
-    endtime_newIdx = endtime_originalIdx - transient_duration; %end time on data with transient removed
-    baseline_current = sweep_data(1); 
+    baseline_current = sweep_data_whole(1); 
 
-    sweep_data_roi = sweep_data(starttime_newIdx:endtime_newIdx); %region of interest to analyze
-    sweep_data_roi_xvals = timenew(starttime_newIdx:endtime_newIdx); %real time, in ms
+    % starttime_idx = find(time == starttime); %index corresponding to start time. TODO: HOW TO FIND CLOSEST VALUE TO THIS PT
+    % endtime_idx = find(time == endtime);
+
+    %find indices for time closest to specified start and end times
+    [~, starttime_idx] = min(abs(time-starttime));
+    [~, endtime_idx] = min(abs(time-endtime));
+
+   
+    sweep_data_roi = sweep_data_whole(starttime_idx:endtime_idx); %region of interest to analyze
+    sweep_data_roi_xvals = time(starttime_idx:endtime_idx); %real time, in ms
 
     %calculate synaptic charge for the whole regionof interest
    
@@ -63,20 +86,18 @@ for i = 1:numel(sweeps_to_analyze)
     [pks, pklocs] = findpeaks(sweep_data_roi); %outward current peaks. gets indexes
     [troughs,trlocs] = findpeaks(-sweep_data_roi); %inward current peaks. gets indexes
 
-    %% edit from here
-    %TODO: find all pts where signal reaches baseline (0) before and after
-    %each peak to calculate AuC and duration for each signal
+    numSignals = numel(pks) + numel(troughs); %total no. of signals detected
 
-    AUCs_roi = zeros(1, (size(pks) + size(troughs))); %to store area under curve of each signal detected
+    AUCs_roi = zeros(1, numSignals); %to store area under curve of each signal detected
     
     sweep_data_roi_shifted = sweep_data_roi - baseline_current; %shift everything to 0
 
     %find real x intercepts, where the graph comes back to baseline (in ms)
-    back_to_baseline_locs = find_x_intercepts(sweep_data_roi_shifted, sweep_data_roi_xvals); %get real x ints
-    back_to_baseline_locs_whole = back_to_baseline_locs + transient_duration_ms + starttime; %with respect to the whole trace, including the transients
-    
+    back_to_baseline_locs_whole = find_x_intercepts(sweep_data_roi_xvals,sweep_data_roi_shifted); %get real x ints
+   
     %find x intercepts (in indices)
-    xints_idx = find_x_intercepts(sweep_data_roi_shifted, [1:numel(sweep_data_roi_shifted)]); %get real x ints
+    xints_real = find_x_intercepts(sweep_data_roi_xvals, sweep_data_roi_shifted); %get real x ints
+    xints_idx = ms_to_sampleunits(si, xints_real);
     
     %% create a table containing synaptic charge for each set of signals
     %initialize a new table with headers
@@ -91,21 +112,30 @@ for i = 1:numel(sweeps_to_analyze)
     for z = 1:numel(xints_idx)-1
         intercept = xints_idx(z);
         
-        y=sweep_data_roi_shifted(xints_idx>intercept&xints_idx<xints_idx(z+1) );
-        x=xints_idx(xints_idx>intercept&xints_idx<xints_idx(z+1));
-        
-        area=trapz(x, y ); %area under curve for this signal
-        AUCs_roi(z) = area;
-        signalduration = find(xints_idx == max(xints_idx(z+1)-xints_idx)) - find(xints_idx == min(xints_idx-intercept)&xints_idx>intercept);
+       %% TODO: GET HELP
 
+       x = [xints_real(z):dt:xints_real(z+1)];
+       x_i = ms_to_sampleunits(si,x);
+        area=trapz(x_i, sweep_data_roi_shifted); %area under curve for this signal
+        AUCs_roi(z) = area; %in indices*yunit
+       
+
+
+        
+        signalDuration = back_to_baseline_locs_whole(z+1) - back_to_baseline_locs_whole(z);
+        if signalDuration <=0 
+            continue; %move onto next sweep. %TODO: ASK BEST WAY TO DO THIS 
+        else
+       
         %add a new row to the signalsTable. start and end times of signal
         %are with respect to whole trace, including transient
         signalsRow = {back_to_baseline_locs_whole(z), back_to_baseline_locs_whole(z+1),  AUCs_roi(z), signalDuration};
         signalsTable = [signalsTable; signalsRow];
     end
 
-    
+    end
 
     % Display the table with AUCs
     disp("signals in sweep" + sweepnumber)
     disp(signalsTable);
+end

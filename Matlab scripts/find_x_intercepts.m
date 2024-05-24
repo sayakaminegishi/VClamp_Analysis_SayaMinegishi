@@ -1,4 +1,4 @@
-function x_intercepts = find_x_intercepts(y_data, x_data)
+function x_intercepts = find_x_intercepts(x_data, y_data)
 %this function finds all the x intercepts of a given signal.
 
 % xints = array of x intercepts in shifted_signal 
@@ -35,9 +35,9 @@ for i = 1:length(crossings)
     x_intercepts = [x_intercepts, x_zero];
 end
 
-% Display the x-intercepts
-disp('X-intercepts:');
-disp(x_intercepts);
+% % Display the x-intercepts
+% disp('X-intercepts:');
+% disp(x_intercepts);
 
 % Plot the signal and the x-intercepts
 figure;
