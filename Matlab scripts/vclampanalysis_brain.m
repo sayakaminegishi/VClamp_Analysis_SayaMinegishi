@@ -110,14 +110,24 @@ for i = 1:numel(sweeps_to_analyze)
     %find synaptic charge of each signal (defining synaptic charge as area
     %under curve below baseline)
     for z = 1:numel(xints_idx)-1
-        intercept = xints_idx(z);
         
-       %% TODO: GET HELP
+       x_start = xints_real(z);
+       x_end = xints_real(z+1);
 
-       x = [xints_real(z):dt:xints_real(z+1)];
-       x_i = ms_to_sampleunits(si,x);
-        area=trapz(x_i, sweep_data_roi_shifted); %area under curve for this signal
-        AUCs_roi(z) = area; %in indices*yunit
+       % Find the indices that correspond to the range [x_start, x_end]
+        mask = (time >= x_start) & (time < x_end); %get indices
+        x_sub = time(mask);
+        y_sub = sweep_data_roi_shifted(mask);
+
+        % Calculate the area under the curve
+        area = trapz(x_sub, y_sub);
+        disp(['The area under the curve is: ', num2str(area)]);
+        AUCs_roi(z) = area;
+
+       % x = [xints_real(z):dt:xints_real(z+1)];
+       % x_i = ms_to_sampleunits(si,x);
+       %  area=trapz(x_i, sweep_data_roi_shifted); %area under curve for this signal
+       %  AUCs_roi(z) = area; %in indices*yunit
        
 
 

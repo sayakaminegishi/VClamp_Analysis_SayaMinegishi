@@ -1,6 +1,9 @@
-function V_clamp_batchAnalysis(outputfile)
+function V_clamp_batchAnalysis(outputfile, starttime, endtime, sweeps)
 
 %outputfile = name of output excel file
+%starttime = start time of region to analyze
+%endtime = end time of region to analyze (ms)
+%sweeps = vector containing sweep numbers to analyze.
 
 %performs analysis on V-clamp traces gives a table with the properties
 %of each cell, with the last row being the AVERAGE of all the cells.
@@ -12,10 +15,10 @@ function V_clamp_batchAnalysis(outputfile)
 
 % Original script by: Sayaka (Saya) Minegishi
 % Contact: minegishis@brandeis.edu
-% Date: May 20 2024
+% Date: May 24 2024
 
 
-last_only = 0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 currentFolder = pwd;
 mkdir tempdata %make a new folder to store the data files selected
 
@@ -62,56 +65,13 @@ file_names = {list.name}; % List of all abf file names in the directory
 
 for i = 1:numel(file_names)
     file_names{i} = fullfile(tempDir, file_names{i});
+    fn = string(file_names{i});
+    getgraph =1; %get graph. MODIFY TO 0 IF NO GRAPH IS DESIRED.
+    multipleVariablesTable= Vclamp_analysis_singlecell(fn, sweeps, starttime, endtime, getgraph);
+
 end
 
-Vclamp_analysis_singlecell(string(file_names{1}), 1)
+%% EXTRACT SWEEP-SPECIFIC DATA
 
-%table for summarizing Vclamp properties
-% amplitude is the amplitude of the current at the end of pulse. synaptic
-% charge is the area under the curve.
-
-% %% TODO: EDIT FROM HERE BELOW
-% myVarnamesSing= {'duration(ms)', 'amplitude(pA)', 'min_value(pA)', 'synaptic_charge(pA*ms)'};
-% 
-% %MAKE A TABLE WITH EMPTY VALUES BUT WITH HEADERS
-% % Define headers
-% headersSingT= {'duration(ms)', 'amplitude(pA)', 'min_value(pA)', 'synaptic_charge(pA*ms)'};
-% variableTypes = {'double', 'double', 'double', 'double'};
-% 
-% % Create an empty table with headers
-% singT = table('Size', [0, numel(headersSingT)], 'VariableNames', headersSingT, 'VariableTypes', variableTypes);
-% singT(:,[1,7]) = []; %delete irrelevant columns for averaged data
-% filesNotWorking = [];
-% 
-% for n=1:size(file_names,2)
-% 
-%     filename = string(file_names{n});
-%     disp([int2str(n) '. Working on: ' filename])
-%     try
-%         [singletAnalysisRow, T] = CMA_burst_analysis_feb17(filename); %get burst and singlet analysis for thsi cell
-%         singT = [singT; singletAnalysisRow];
-% 
-%     catch
-%         fprintf('Invalid data in iteration %s, skipped.\n', filename);
-%         filesNotWorking = [filesNotWorking;filename];
-%     end
-% 
-% end
-% 
-% %add cell name column to singT
-% newcolumn = burstT(:,1); %first column of burstT
-% singT = [newcolumn, singT];
-% 
-% 
-% %%%%%%%%%%%%%%%%%
-% display(singT)
-% display(burstT)
-% display(filesNotWorking)
-% filesthatworkedcount = size(file_names,2) - size(filesNotWorking, 1);
-% display(filesthatworkedcount + " out of " + size(file_names,2) + " traces analyzed successfully.");
-% 
-% writetable(burstT, filenameExcelDoc, 'Sheet', 1); %export summary table for bursts to excel
-% writetable(singT, filenameExcelDoc, 'Sheet', 2); %export summary table for singlets to excel
-% 
 
 end

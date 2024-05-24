@@ -1,19 +1,19 @@
-function multipleVariablesTable = Vclamp_analysis_singlecell(filename, sweepstoanalyze, starttime, endtime, getgraph)
 
-%Gives the voltage-clamp trace properties in a specified interval of time, from a specified file and specified sweeps of interest.
-% usage example: to get current properties when performing voltage steps.
+%% Vclamp_analysis_singlecell.m but testing with a specific file.
+%Basis for Vclamp_analysis_singlecell.m
 
-%sweepstoanalyze = a vector containig the sweep numbers to analyze. 
-%starttime = time (in ms) at which region of analysis starts
-%endtime = time (in ms) at which region of analysis ends
-%filename = full path to abf file
-%getgraph = 0 if no graphical output desired, 1 if graph desired.
-
-% Created by: Sayaka (Saya) Minegishi
+% Created by Sayaka (Saya) Minegishi
 % Contact: minegishis@brandeis.edu
-% last updated: May 24 2024
+% Date: May 24 2024
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath '/Users/sayakaminegishi/MATLAB/Projects/VClamp_Analysis_SayaMinegishi'
+%% Input:
+filename = "/Users/sayakaminegishi/Documents/Birren Lab/Voltage clamp analysis/voltage clamp example data/2024_03_25_01_0000.abf";
+sweepstoanalyze = [1:10];
+%define region of interst to analyze (ms after start of recording)
+starttime = 200; 
+endtime = 1400; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -86,39 +86,13 @@ for i = 1:numel(sweeps_to_analyze)
     %peak negative amplitude
     pna = min(sweep_data_roi) - baseline_current;
 
-     %max and min values
-    [mxval, mxindex]= max(sweep_data_roi);
-    mxindex = mxindex+ starttime_idx;
-
-    [mnval, mnindex] =min(sweep_data_roi);
-    mnindex = mnindex+ starttime_idx;
-
     %add to table
     multipleVariablesRow = {sweepnumber, starttime, endtime, baseline_current, ppa, pna, synaptic_charge};
     multipleVariablesTable = [multipleVariablesTable; multipleVariablesRow];
-
    
-
-    %give graph only if desired by user
-    if getgraph == 1
-        % inspect signal
-        %Plot the signal and the x-intercepts
-        figure;
-        plot(time, data, 'b-', 'LineWidth', 1.5);
-        hold on;
-        plot(sweep_data_roi_xvals, sweep_data_roi, 'y-','LineWidth', 2);
-        plot(time(mxindex), mxval, 'r+') %maximum point
-        plot(time(mnindex), mnval, 'r+')
-        xlabel('Time (ms)');
-        ylabel('Current (pA)');
-        title('Region of Interest');
-        
-        grid on;
-    end
    
     end
 
     multipleVariablesTable = cell2table(multipleVariablesTable);
     multipleVariablesTable.Properties.VariableNames = myVarnames;
     disp(multipleVariablesTable); %final table
-end
