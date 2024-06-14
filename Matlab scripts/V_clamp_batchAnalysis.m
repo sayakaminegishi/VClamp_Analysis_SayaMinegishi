@@ -1,4 +1,4 @@
-function V_clamp_batchAnalysis(outputfile, starttime, endtime, selectedsweeps)
+function V_clamp_batchAnalysis(outputfile, starttime, endtime)
 
 %performs analysis on V-clamp traces gives a table with the properties
 %of each cell, with the last row being the AVERAGE of all the cells.

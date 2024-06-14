@@ -10,10 +10,13 @@
 clear all
 close all
 
-%singlecell analysis
+%singlecell analysis. put endtime = 0 if you want to analyze till the end
+%of the sweep.
+
 filename = "/Users/sayakaminegishi/Documents/Birren Lab/Voltage clamp analysis/voltage clamp example data/2024_03_25_01_0000.abf";
 
-multipleVariablesTable=Vclamp_analysis_singlecell(filename, [1:3], 200, 1000, 1); %vclamp analysis on a single abf file
+multipleVariablesTable=Vclamp_analysis_singlecell(filename, 0, 0, 1); %vclamp analysis on a single abf file
+
 
 %multiple cells batch analysis - gives average for each sweep
 outputfile = 'samplemay24.xlsx';
