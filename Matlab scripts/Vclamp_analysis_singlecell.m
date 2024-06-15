@@ -11,7 +11,7 @@ function multipleVariablesTable = Vclamp_analysis_singlecell(filename, starttime
 
 % Created by: Sayaka (Saya) Minegishi
 % Contact: minegishis@brandeis.edu
-% last updated: May 24 2024
+% last updated: June 14 2024
 
 
 
@@ -76,7 +76,7 @@ for i = 1:numel(sweeps_to_analyze)
    
     %find indices for time closest to specified start and end times
     if(endtime == 0)
-        endtime_idx = time(end); %if endtime is not specified, take the end of the sweep as endtime
+        endtime_idx = numel(time); %if endtime is not specified, take the end of the sweep as endtime
         endtime_roi = time(end);
     else
         [~, endtime_idx] = min(abs(time-endtime));
@@ -116,12 +116,9 @@ for i = 1:numel(sweeps_to_analyze)
     mntime = time(mnindex); %loc of min current in ROI, but with respect to the whole trace
 
    
-   
-
-
+  
     %add to table
-    %{'sweep number', 'ROI_StartTime(ms)', 'ROI_EndTime(ms)', 'baseline_current(pA)', 'peak_positive_amplitude_ROI(pA)', 'peak_negative_amplitude_ROI(pA)', "max_current(pA)", "loc_max_current(ms)", "min_current(pA)", "loc_min_current(ms)", "resistance(ohms)", "capacitance(pF)", "tau(ms)", 'synaptic_charge(pA*ms)'};
-
+   
     multipleVariablesRow = {sweepnumber, starttime, endtime_roi, baseline_current, ppa, pna, mxval, mxtime, mnval, mntime, synaptic_charge};
     multipleVariablesTable = [multipleVariablesTable; multipleVariablesRow];
 
