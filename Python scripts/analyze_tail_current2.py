@@ -64,7 +64,7 @@ def analyze_tail(time, trace, trough, HypEnd, sweep, SampleRate):
 
     # inspect the parameters
     print("Sweep "+ str(sweep))
-    print(f"Y = -{m} * e^(-{t} * x) + {b}")
+    print(f"Y = {m} * e^({t} * x) + {b}")
     print(f"Tau = {tauSec * 1e6} µs")
 
     return m, t, b
