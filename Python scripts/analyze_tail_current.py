@@ -7,6 +7,8 @@ import numpy as np
 import scipy.optimize
 import matplotlib.pyplot as plt
 
+
+
 def analyze_tail(time, trace, HypStart, HypEnd, sweep, SampleRate):
     #time = time vector, trace = whole data to analuyze, hypstart = start time of hyperpolarization step, hypend = end time of tail current
     #hypstart and hypend are in SECONDS. sweep = sweep number
@@ -67,6 +69,11 @@ def analyze_tail(time, trace, HypStart, HypEnd, sweep, SampleRate):
     ##### FIT EXPONENTIAL TO POST - perform the fit
     #p0 = (2000, .1, 50) # start with values near those we expect
     #params, cv = scipy.optimize.curve_fit(monoExp, xs, ys, p0)
+
+    def monoExp(x, m, t, b):
+        return -m * np.exp(-t * x) + b
+    
+    mask = (t>=starttime) & (t<=endtime)
     params, cv = scipy.optimize.curve_fit(monoExp, xs, ys)
     m, t, b = params
     tauSec = (1 / t) / SampleRate
@@ -92,7 +99,4 @@ def analyze_tail(time, trace, HypStart, HypEnd, sweep, SampleRate):
 
 
 
-def monoExp(x, m, t, b):
-    
-    return -m * np.exp(-t * x) + b
 
