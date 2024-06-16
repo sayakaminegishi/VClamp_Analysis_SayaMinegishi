@@ -24,7 +24,7 @@ import scipy.optimize
 
 
 from analyze_tail_current import analyze_tail
-from createIV import create_IV
+
 
 ##### LOAD DATA ############
 filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0007.abf" #file to analyze
