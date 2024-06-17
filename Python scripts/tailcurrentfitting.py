@@ -42,6 +42,9 @@ def analyze_tail(time, trace, trough, HypEnd, sweep, SampleRate):
     x_fit = np.linspace(time[mask].min(), time[mask].max(), 1000)  # x values for line of best fit
     y_fit = monoExp(x_fit, *params)  # y values for fitted curve
     plt.plot(x_fit, y_fit, c="red", label="fit")
+    plt.axvline(x = trough, color = 'b', linestyle = 'dashed',  label = 'Trough')
+    plt.axvline(x = HypEnd, color = 'b', linestyle = 'dashed',  label = 'End of hyperpolarization')
+ 
     plt.legend()
     plt.show()
 
@@ -91,7 +94,7 @@ for i in abfdata.sweepList:
         afound, bfound, cfound = analyze_tail(time, trace, trough_loc, endtime, i, SampleRate)
         # Add sweep, a, b, c to the summary table
         new_row = {'sweep_number': i, 'a': afound, 'b': bfound, 'c': cfound}
-        df = df.append(new_row, ignore_index=True)
+        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     except Exception as e:
         logging.error(traceback.format_exc())  # log error
 
