@@ -1,13 +1,12 @@
-''' PEAK CURRENT ANALYSIS - AUC and AMP
-computes peak amplitude & area under curve for the greatest current step, for a specified protocol (with vsteps), and compares (gives avg) across multiple vclamp files.
-Can be used to get average peak current properties for one strain. Can be ran 2 times to compare differences between two strains.
-
-Works for Henckels & Bradley Protocols.
+''' OKADA Ca2+ dependence analysis - AUC and AMP
+computes peak amplitude & area under curve for the EACH sweep, where the duration
+of depolarization increases with increasing sweep number.
 
 Created by: Sayaka (Saya) Minegishi
 Contact: minegishis@brandeis.edu
 Last modified: June 17 2024
 '''
+
 import numpy as np
 import scipy.optimize
 import scipy.signal
@@ -34,18 +33,10 @@ file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF File
 
 print(f"Selected files: {file_paths}")
 
-# Ask protocol type
-protocolname = str(input("Enter the protocol type - Henckels or Bradley: "))
+#depolarization start time
+starttime = 0.0967
 
-# Define peak time
-if protocolname == "Henckels":
-    starttime = 0.08
-    endtime = 0.5810
-elif protocolname == "Bradley":
-    starttime = 0.0967
-    endtime = 0.5963
-
-
+#TODO: set endtime in main for loop
 filesnotworking = []
 
 # Initialize summary table for recording data
@@ -58,6 +49,9 @@ for file in file_paths:
         print("\nWorking on " + file)
 
         abfdata = pyabf.ABF(file)
+
+        #TODO: make for loop across all sweeps. MODIFY FROM HERE BELOW
+
         swp = len(abfdata.sweepList)-1 #analyze the last sweep
         abfdata.setSweep(swp)
         
