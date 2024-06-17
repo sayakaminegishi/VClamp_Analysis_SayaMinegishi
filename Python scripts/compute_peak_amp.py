@@ -1,5 +1,5 @@
-''' PEAK CURRENT ANALYSIS
-computes peak amplitude for the greatest current step, for a specified protocol (with vsteps), and compares (gives avg) across multiple vclamp files.
+''' PEAK CURRENT ANALYSIS - AUC and AMP
+computes peak amplitude & area under curve for the greatest current step, for a specified protocol (with vsteps), and compares (gives avg) across multiple vclamp files.
 #can be used to get average peak current properties for one strain. Can be ran 2 times to compare differences between two strains.
 
 Created by: Sayaka (Saya) Minegishi
@@ -72,7 +72,7 @@ for file in file_paths:
         trace = np.array(abfdata.sweepY)  # Current values
         inputv = np.array(abfdata.sweepC)
         SampleRate = abfdata.dataRate  # sample rate in total samples per second per channel
-        baseline = trace(0)
+        baseline = trace[0]
 
         # Denoise the trace
         denoised_trace = low_pass_filter(trace, SampleRate)
@@ -88,7 +88,7 @@ for file in file_paths:
 
         peakamp = peak_val - baseline
         areaundercurve_dep = np.trapz(filtered_values, filtered_time) #area under the curve
-        vAtPeak = inputv(index_of_peak) #input voltage at the time of the peak
+        vAtPeak = inputv[index_of_peak] #input voltage at the time of the peak
 
         if peakamp is not None and areaundercurve_dep is not None and vAtPeak is not None:
             # Add filename, peakamp and areaundercurve, and voltage input to summary table
@@ -108,9 +108,9 @@ mean_a = df['Peak_amplitude(pA)'].mean()
 mean_b = df['Input_voltage(mV)'].mean()
 mean_c = df['AreaUnderCurve(pA*mV)'].mean()
 
-print("Mean peak amplitude(pA): " + mean_a)
-print("Mean Input_voltage(mV): " + mean_b)
-print("Mean area under curve(mV*pA): " + mean_c)
+print("Mean peak amplitude(pA): " + str(mean_a))
+print("Mean Input_voltage(mV): " + str(mean_b))
+print("Mean area under curve(mV*pA): " + str(mean_c))
 
 
 # Show files not working
