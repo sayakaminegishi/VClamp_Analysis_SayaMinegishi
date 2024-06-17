@@ -39,6 +39,7 @@ swp = int(input("Enter the sweep number to analyze: "))
 starttime = 0.6  # start of the hyperpolarizing step leading to the tail current (includes the part BEFORE trough)
 endtime = 1.5  # end of tail current, ie the hyperpolarizing step (sec)
 
+filesnotworking = []
 ######################## DEFINE FUNCTIONS ###############
 
 # Function to analyze the tail current (from trough to end of tail)
@@ -83,42 +84,46 @@ df = pd.DataFrame(columns=columns)  # create an empty dataframe with the specifi
 
 
 for file in file_paths:
-    print("Working on " + file)
-
-    abfdata = pyabf.ABF(file)
-    print(abfdata)  # gives info about abfdata, such as no. of sweeps, channels, duration
-    abfdata.setSweep(swp)
-    
-    #visualize data
-    plt.figure()
-    plt.plot(abfdata.sweepX, abfdata.sweepY, color="orange")
-    # Add labels and title
-    plt.xlabel('Time (s)')
-    plt.ylabel('Current (pA)')
-    plt.title('Exponential Fit: Averaged Line of Best Fit')
-    plt.legend()
-
-    # Extract sweep data and convert them to arrays
-    time = np.array(abfdata.sweepX)
-    trace = np.array(abfdata.sweepY)  # Current values
-    SampleRate = abfdata.dataRate  # sample rate in total samples per second per channel
-
-    # Get trough
-    mask1 = (time >= starttime) & (time <= endtime)
-    filtered_values = trace[mask1]  # trace values, for the hyperpolarizing step
-    filtered_time = time[mask1]
-
-    trough_val = np.min(filtered_values)  # minimum value of tail current, in mV
-    index_of_min = np.argmin(filtered_values)  # find the index of the minimum value
-    trough_loc = filtered_time[index_of_min]  # trough location, in seconds
-
     try:
+        print("\nWorking on " + file)
+
+        abfdata = pyabf.ABF(file)
+       
+        abfdata.setSweep(swp)
+        
+        #visualize data
+        plt.figure()
+        plt.plot(abfdata.sweepX, abfdata.sweepY, color="orange")
+        # Add labels and title
+        plt.xlabel('Time (s)')
+        plt.ylabel('Current (pA)')
+        plt.title('Exponential Fit: Averaged Line of Best Fit')
+        plt.legend()
+
+        # Extract sweep data and convert them to arrays
+        time = np.array(abfdata.sweepX)
+        trace = np.array(abfdata.sweepY)  # Current values
+        SampleRate = abfdata.dataRate  # sample rate in total samples per second per channel
+
+        # Get trough
+        mask1 = (time >= starttime) & (time <= endtime)
+        filtered_values = trace[mask1]  # trace values, for the hyperpolarizing step
+        filtered_time = time[mask1]
+
+        trough_val = np.min(filtered_values)  # minimum value of tail current, in mV
+        index_of_min = np.argmin(filtered_values)  # find the index of the minimum value
+        trough_loc = filtered_time[index_of_min]  # trough location, in seconds
+
         afound, bfound, cfound = analyze_tail(time, trace, trough_loc, endtime, SampleRate)
         # Add filename, a, b, c to the summary table
         new_row = {'filename': file, 'a': afound, 'b': bfound, 'c': cfound}
-        df = df.append(new_row, ignore_index=True)
+        
+        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     except Exception as e:
+        filesnotworking.append(file)
         logging.error(traceback.format_exc())  # log error
+
+        
 
 ############# Get summary data for the cell ################
 
@@ -148,3 +153,7 @@ plt.title('Exponential Fit: Averaged Line of Best Fit for Sweep ' + str(swp))
 plt.legend()
 plt.grid(True)
 plt.show()
+
+#show files not working
+string = ','.join(str(x) for x in filesnotworking)
+print(string)
