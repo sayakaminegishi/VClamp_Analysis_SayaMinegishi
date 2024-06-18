@@ -13,7 +13,7 @@ import pyabf.tools.memtest
 
 import scipy.optimize
 ##### LOAD DATA ############
-filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0007.abf" #file to analyze
+filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0005.abf" #file to analyze
 abfdata = pyabf.ABF(filepath)
 samplerate = int(abfdata.sampleRate * 1) #sampling rate in Hz
 ##########################
@@ -25,12 +25,20 @@ current = np.array(abfdata.sweepY)
 voltage = np.array(abfdata.sweepC)
 time = np.array(abfdata.sweepX)
 
-conductance=current/voltage #conductance values, in an array, for this sweep
+from createIV import createIV
+createIV(filepath)
 
-# Show conductance
-string = ','.join(str(x) for x in conductance)
-print("Conductance values:" + string)
+# conductance=current/voltage #conductance values, in an array, for this sweep
 
-print(np.size(conductance)) 
+# # Show conductance
+# string = ','.join(str(x) for x in conductance)
+# print("Conductance values:" + string)
 
-print(max(conductance))
+# print(np.size(conductance)) 
+
+# print("max conductance is" + str(max(conductance)) + "nanosiemens")
+
+# plt.figure()
+# plt.plot(voltage, conductance)
+# plt.show()
+# #TODO: get conductance at reversal potential

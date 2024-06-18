@@ -2,6 +2,8 @@
 #This program estimates the reversal potential of a current from a given ramp.
 #TO USER: specify filepath, starttime, and endtime of the region to analyze (the linear part of the ramp).
 
+#TODO: FIND WHY THE GRAPH IS NOT UPDATING TO NEW SWEEP AT EACH ITERATION
+
 # Created by Sayaka (Saya) Minegishi
 # Contact: minegishis@brandeis.edu
 # Last modified: June 16 2024
@@ -64,7 +66,8 @@ for i in abfdata.sweepList:
 
     #add sweep, a and b to the summary table
     new_row = {'sweep_number': i, 'a':  a, 'b': b}
-    df = df.append(new_row, ignore_index = True)
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
 
 
 
