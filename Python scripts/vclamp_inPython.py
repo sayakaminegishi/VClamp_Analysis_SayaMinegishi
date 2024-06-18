@@ -23,8 +23,6 @@ import pyabf.tools.memtest
 import scipy.optimize
 
 
-from analyze_tail_current import analyze_tail
-
 
 ##### LOAD DATA ############
 filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0007.abf" #file to analyze
@@ -120,19 +118,29 @@ for i in abfdata.sweepList:
     plt.tight_layout()
     plt.show()
 
+
+    #calculate conductance
+    #g = I/V
+    conductance = (np.array(abfdata.sweepY))/(np.array(abfdata.sweepC))
+
+    print(str(conductance))
+
+
     
-    ######### EXPONENTIAL FIT FOR TAIL CURRENT #################
-    #TODO: fit a model for end of vstep to trough, then trough to end of hyperpolarixation 
-    #first extract the region of hyperpolarization, with hstartT & hendT as start and end of hyperpolarizing step
 
 
-    x = abfdata.sweepX
-    y=abfdata.sweepY
+#     ######### EXPONENTIAL FIT FOR TAIL CURRENT #################
+#     #TODO: fit a model for end of vstep to trough, then trough to end of hyperpolarixation 
+#     #first extract the region of hyperpolarization, with hstartT & hendT as start and end of hyperpolarizing step
 
-    sttime = 0.6 #start of tail current in secs
-    endtime = 1.6
 
-    analyze_tail(x,y,sttime,endtime, i, samplerate)
+#     x = abfdata.sweepX
+#     y=abfdata.sweepY
+
+#     sttime = 0.6 #start of tail current in secs
+#     endtime = 1.6
+
+#     analyze_tail(x,y,sttime,endtime, i, samplerate)
 
 
 
