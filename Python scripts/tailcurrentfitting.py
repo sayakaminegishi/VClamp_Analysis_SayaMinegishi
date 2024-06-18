@@ -14,7 +14,8 @@ import traceback
 import logging
 import scipy.signal
 
-##### USER-DEFINED INPUT DATA ############
+##### USER-DEFINED INPUT DATA  ############
+#TODO: change this to dialogue option, add protocol type specification for start and endtimes
 filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0003.abf"  # file to analyze
 starttime = 0.6  # start of the hyperpolarizing step leading to the tail current (includes the part BEFORE trough)
 endtime = 1.5  # end of tail current, ie the hyperpolarizing step (sec)
