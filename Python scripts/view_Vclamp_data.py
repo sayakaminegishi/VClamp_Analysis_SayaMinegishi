@@ -1,4 +1,5 @@
-''' This program gives a visual output of a selected v-clamp data (in .abf format). 
+''' This program gives a visual output of a v-clamp data (in .abf format), which is selected in popup dialogue by user. 
+No need for the user to change code. Just press Run.
 
     Created by: Sayaka (Saya) Minegishi
     Contact: minegishis@brandeis.edu
@@ -14,6 +15,7 @@ import traceback
 import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from get_tail_times import getStartEndTail
+from get_protocol_name import get_protocol_name
 
 plt.close('all')
 
@@ -26,25 +28,39 @@ def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
     return filtered_trace
 
 
+#get user input
+app = QApplication([])
 
-#ASK USER INPUT
-filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0007_BrdWN_5mMCa.abf"
+# Set the options for the file dialog
+options = QFileDialog.Options()
+
+# Open the file dialog and allow the user to select only one file
+filepath, _ = QFileDialog.getOpenFileName(None, "Select a file", "", "ABF Files (*.abf);;All Files (*)", options=options)
+
+# Print the selected file path
+if filepath:
+    print(f"Selected file: {filepath}")
+
+protocolname = get_protocol_name()
 abfdata = pyabf.ABF(filepath)
-
-#tail current start and end times
-protocolname = "BradleyLong"
-i = 0 #i.e. not okada. i = sweep number for okada
-tailstart, tailend = getStartEndTail(protocolname, i)
-
-
-
-
+num_channels = abfdata.channelCount #number of output channels
 
 for swp in abfdata.sweepList:
 
-    abfdata.setSweep(sweepNumber= swp, channel= 1) #channel = 1 shows unsubtracted trace
-    #TODO: make if/else so that if numChannels<2, channel is always 0
+    #set channel to analyze - select only the unsubtracted
+    if num_channels == 1:
+        abfdata.setSweep(swp)
+    else:
+        abfdata.setSweep(sweepNumber= swp, channel= 1)
+
+    #get start and end times of tail current region
+    if protocolname == "Okada":
+        k = swp
+    else:
+        k = 0 #i.e. not okada. i = sweep number for okada
     
+    tailstart, tailend = getStartEndTail(protocolname, k)
+
     # Extract sweep data and convert them to arrays
     time = np.array(abfdata.sweepX)
     trace = np.array(abfdata.sweepY)  # Current values
@@ -76,10 +92,6 @@ for swp in abfdata.sweepList:
     axs[1].axvline(x = tailstart, color = 'b', label = 'tail start', linestyle = "dashed")
     axs[1].axvline(x = tailend, color = 'b', label = 'tail end', linestyle = "dashed")
    
-    
-        
-        
- 
     plt.show()
 
     

@@ -2,7 +2,7 @@
 
 Created by: Sayaka (Saya) Minegishi. Some modifiactions made by ChatGPT.
 Contact: minegishis@brandeis.edu
-Last modified: June 17 2024
+Last modified: June 19 2024
 
 '''
 import numpy as np
@@ -14,11 +14,25 @@ import traceback
 import logging
 import scipy.signal
 
+from PyQt5.QtWidgets import QApplication, QFileDialog
+from get_tail_times import getStartEndTail
+from get_protocol_name import get_protocol_name
+
 ##### USER-DEFINED INPUT DATA  ############
-#TODO: change this to dialogue option, add protocol type specification for start and endtimes
-filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0003.abf"  # file to analyze
-starttime = 0.6  # start of the hyperpolarizing step leading to the tail current (includes the part BEFORE trough)
-endtime = 1.5  # end of tail current, ie the hyperpolarizing step (sec)
+######### Ask user input (automatic - no need to change any code here) #########
+app = QApplication([])
+
+# Set the options for the file dialog
+options = QFileDialog.Options()
+
+# Open the file dialog and allow the user to select only one file
+filepath, _ = QFileDialog.getOpenFileName(None, "Select a file", "", "ABF Files (*.abf);;All Files (*)", options=options)
+
+# Print the selected file path
+if filepath:
+    print(f"Selected file: {filepath}")
+
+protocolname = get_protocol_name()
 
 ######################################
 # Function to apply low-pass filter
@@ -85,6 +99,13 @@ df = pd.DataFrame(columns=columns)  # create an empty dataframe with the specifi
 for i in abfdata.sweepList:
     try:
         abfdata.setSweep(i)
+        if protocolname == "Okada":
+            k = i
+        else:
+            k = 0 #i.e. not okada. i = sweep number for okada
+        
+        starttime, endtime = getStartEndTail(protocolname, k)
+
         # plot data
         plt.figure()
         plt.plot(abfdata.sweepX, abfdata.sweepY, color="orange")
