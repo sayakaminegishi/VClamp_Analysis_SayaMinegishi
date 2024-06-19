@@ -15,7 +15,7 @@ import traceback
 import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from get_tail_times import getStartEndTail
-from get_protocol_name import get_protocol_name
+from get_protocol_name import get_protocol_name # type: ignore
 
 plt.close('all')
 

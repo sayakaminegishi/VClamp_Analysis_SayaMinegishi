@@ -1,4 +1,6 @@
-''' FITS AN EXPONENTIAL MODEL FOR THE TAIL CURRENT OF EACH SWEEP, FOR A GIVEN V-CLAMP FILE.
+''' FUNCTION FORM: FITS AN EXPONENTIAL MODEL FOR THE TAIL CURRENT OF EACH SWEEP, FOR A GIVEN V-CLAMP FILE.
+IDENTICLA TO tailcurrentfitting.py, except that this is a function.
+
 
 Created by: Sayaka (Saya) Minegishi. Some modifiactions made by ChatGPT.
 Contact: minegishis@brandeis.edu

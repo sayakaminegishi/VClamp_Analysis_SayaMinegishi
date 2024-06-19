@@ -6,7 +6,7 @@ Created by: Sayaka (Saya) Minegishi
 Contact: minegishis@brandeis.edu
 Last modified: June 19 2024
 '''
-#TODO: FIX EXCEL EXPORTING AND DF STORAGE
+#TODO: ALLOW USER TO SELECT WHICH DIRECTORY TO STORE THE FILES
 
 import os
 import numpy as np
@@ -18,9 +18,9 @@ import pandas as pd
 import traceback
 import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog
-from getFilePath import get_file_path
+from getFilePath import get_file_path # type: ignore
 from get_tail_times import getStartEndTail
-from remove_abf_extension import remove_abf_extension
+from remove_abf_extension import remove_abf_extension # type: ignore
 
 
 # Function to apply low-pass filter
