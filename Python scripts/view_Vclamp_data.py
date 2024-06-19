@@ -1,3 +1,9 @@
+''' This program gives a visual output of a selected v-clamp data (in .abf format). 
+
+    Created by: Sayaka (Saya) Minegishi
+    Contact: minegishis@brandeis.edu
+    Last modified: Jun 19 2024
+'''
 import numpy as np
 import scipy.optimize
 import scipy.signal
@@ -7,6 +13,9 @@ import pandas as pd
 import traceback
 import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog
+from get_tail_times import getStartEndTail
+
+plt.close('all')
 
 # Function to apply low-pass filter
 def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
@@ -23,8 +32,9 @@ filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/
 abfdata = pyabf.ABF(filepath)
 
 #tail current start and end times
-starttime = 5500 #in samples
-endtime = 15500 #in samples
+protocolname = "BradleyLong"
+i = 0 #i.e. not okada. i = sweep number for okada
+tailstart, tailend = getStartEndTail(protocolname, i)
 
 
 
@@ -32,32 +42,43 @@ endtime = 15500 #in samples
 
 for swp in abfdata.sweepList:
 
-    abfdata.setSweep(swp)
-    print("Number of samples per sweep: " + str(len(abfdata.sweepY))) #TODO: get uncompensated, unsubtracted channel ONLY!!!
-
+    abfdata.setSweep(sweepNumber= swp, channel= 1) #channel = 1 shows unsubtracted trace
+    #TODO: make if/else so that if numChannels<2, channel is always 0
+    
     # Extract sweep data and convert them to arrays
     time = np.array(abfdata.sweepX)
     trace = np.array(abfdata.sweepY)  # Current values
     SampleRate = abfdata.dataRate  # sample rate in total samples per second per channel
 
-    tailstart = time[starttime]
-    tailend = time[endtime]
+
     # Denoise the trace
     denoised_trace = low_pass_filter(trace, SampleRate)
 
-    # Visualize original &denoised data
-    fig, axs = plt.subplots(2, sharex=True)
-    fig.suptitle('Original (top) vs denoised(bottom)')
-    axs[0].plot(time, trace,'tab:orange')
-    axs[1].plot(time, denoised_trace, 'tab:blue')
+    #get commandV
+    abfdata.setSweep(sweepNumber= swp)
+    commandv = np.array(abfdata.sweepC) 
 
-    for ax in axs.flat:
-        ax.set(xlabel='time(ms)', ylabel='current(pA)')
+    # Visualize denoised data & command waveform
+    fig, axs = plt.subplots(2, sharex = True)
+    fig.suptitle('Recorded (top) vs command (bottom)')
+    axs[0].plot(time, denoised_trace,'tab:green')
+    axs[1].plot(time, commandv, 'tab:red')
+
+    axs[0].set(xlabel='time(ms)', ylabel='current(pA)')
+
+    axs[1].set(xlabel='time(ms)', ylabel='input voltage(mV)')
+
+   
+    axs[0].axvline(x = tailstart, color = 'b', label = 'tail start', linestyle = "dashed")
+    axs[0].axvline(x = tailend, color = 'b', label = 'tail end', linestyle = "dashed")
 
 
-    plt.axvline(x = tailstart, color = 'b', label = 'tail start')
-    plt.axvline(x = tailend, color = 'b', label = 'tail end')
+    axs[1].axvline(x = tailstart, color = 'b', label = 'tail start', linestyle = "dashed")
+    axs[1].axvline(x = tailend, color = 'b', label = 'tail end', linestyle = "dashed")
+   
     
+        
+        
  
     plt.show()
 
