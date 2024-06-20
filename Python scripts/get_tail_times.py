@@ -4,6 +4,7 @@
     protocolname = name of protocol used, in string format (Henckels, Okada_dep, Okada_tail, BradleyLong, BradleyShort, AndyLam)
     enter i=0 for second argument if not Okada Ca dependent - enter i=n for Okada, where n is the sweep number of interest
 
+    startTail = end of hyperpolarizing pulse
 
     Created by: Sayaka (Saya) Minegishi
     Contact: minegishis@brandeis.edu
@@ -20,15 +21,46 @@ def getStartEndTail(protocolname,i):
     elif protocolname == "BradleyLong":
 
         startTail =0.5970
-        endTail = 1.5975
+        endTail = 0.5970 + (0.6312-0.5811) #duration of tail same as Henckels to keep everything consistent
+        #endTail = 1.5975 - from original protocol
 
     elif protocolname == "Okada_dep":
         #gives depolarization start and end times
         startTail=0.1124 #start of depolarization
         endTail = i * 0.102 + 0.1124 #end of depolarization
+
     elif protocolname == "Okada_tail":
-        #gives tail current start and end times
-        startTail = i * 0.102 + 0.1124
+        #gives tail current start and end times for each sweep
+
+        if i == 1:
+            startTail = 0.2126
+        elif i==2:
+            startTail = 0.3123
+        
+        elif i == 3:
+
+            startTail = 0.4121
+        elif i == 4:
+            startTail =0.5125
+        elif i == 5:
+            startTail = 0.6123
+
+        elif i == 6:
+            startTail =0.7123
+        elif i == 7:
+            startTail =0.8128
+        elif i == 8:
+            startTail =0.9127
+       
+            
+
+
+
+
+
+
+        
+        
         endTail =  startTail+ 0.6312 - 0.5811 #same as Henckels
 
     # elif protocolname == "AndyLam":

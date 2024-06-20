@@ -1,5 +1,8 @@
 ''' OKADA Ca2+ dependence analysis - AUC & AMP
 computes peak amplitude & area under curve for the EACH sweep, where the duration
+
+sweep numbers start from 0.
+
 of depolarization increases with increasing sweep number.
 
 Created by: Sayaka (Saya) Minegishi
