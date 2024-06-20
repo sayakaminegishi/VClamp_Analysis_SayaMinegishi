@@ -53,14 +53,6 @@ def getStartEndTail(protocolname,i):
             startTail =0.9127
        
             
-
-
-
-
-
-
-        
-        
         endTail =  startTail+ 0.6312 - 0.5811 #same as Henckels
 
     # elif protocolname == "AndyLam":

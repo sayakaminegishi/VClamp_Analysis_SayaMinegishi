@@ -9,7 +9,7 @@ Created by: Sayaka (Saya) Minegishi
 Contact: minegishis@brandeis.edu
 Last modified: June 19 2024
 '''
-#TODO: fix tail current times for each sweep
+
 import os
 import numpy as np
 import scipy.optimize

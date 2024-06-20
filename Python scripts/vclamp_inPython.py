@@ -5,27 +5,50 @@ Created on Mar 24 2024
 
 @author: sayakaminegishi
 
-Description: main file for analyzing voltage-clamp traces.
+Description: main file for analyzing voltage-clamp traces. sweep numbers use 0-based indexing (eg to get 1st sweep, enter 0).
 """
-#pip install pyabf
-# pip install IPFX
-import pyabf
-import matplotlib.pyplot as plt
+
+import os
 import numpy as np
-import pandas as pd
-from matplotlib import gridspec
-import scipy
-from scipy import signal
-from scipy.signal import find_peaks
-from scipy.optimize import curve_fit
-import pyabf.tools.memtest
-
 import scipy.optimize
-
+import scipy.signal
+import matplotlib.pyplot as plt
+import pyabf
+import pandas as pd
+import traceback
+import logging
+from PyQt5.QtWidgets import QApplication, QFileDialog
+from getFilePath import get_file_path # type: ignore
+from get_tail_times import getStartEndTail
+from remove_abf_extension import remove_abf_extension # type: ignore
+from getTailCurrentModel import getExpTailModel
 
 
 ##### LOAD DATA ############
-filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0007.abf" #file to analyze
+app = QApplication([])
+
+# Options for the file dialog
+options = QFileDialog.Options()
+
+# Ask user to select a single file
+filepath, _ = QFileDialog.getOpenFileName(None, "Select a file", "", "ABF Files (*.abf);;All Files (*)", options=options)
+
+if not filepath:
+    print("No file selected. Exiting...")
+    exit()
+
+print(f"Selected file: {filepath}")
+
+# Ask user to select a directory to save the Excel file
+save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel File", options=options)
+
+if not save_directory:
+    print("No directory selected. Exiting...")
+    exit()
+
+print(f"Selected save directory: {save_directory}")
+
+
 abfdata = pyabf.ABF(filepath)
 samplerate = int(abfdata.sampleRate * 1) #sampling rate in Hz
 

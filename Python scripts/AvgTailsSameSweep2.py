@@ -6,7 +6,7 @@ Make sure that all files picked at one time are from the same protocol.
 
 Created by: Sayaka (Saya) Minegishi. Some modifiactions made by ChatGPT.
 Contact: minegishis@brandeis.edu
-Last modified: June 17 2024
+Last modified: June 20 2024
 
 '''
 import os
@@ -80,6 +80,16 @@ file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF File
 
 print(f"Selected files: {file_paths}")
 
+# Ask user to select a directory to save the Excel files
+save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
+
+if not save_directory:
+    print("No directory selected. Exiting...")
+    exit()
+
+print(f"Selected save directory: {save_directory}")
+
+
 # Ask sweep number to analyze
 swp = int(input("Enter the sweep number to analyze: "))
 protocolname = str(input("Enter protocol name: "))
@@ -97,6 +107,7 @@ df = pd.DataFrame(columns=columns)  # create an empty dataframe with the specifi
 
 for file in file_paths:
     try:
+        file_n = remove_abf_extension(file)
         print("\nWorking on " + file)
 
         abfdata = pyabf.ABF(file)
@@ -137,7 +148,7 @@ for file in file_paths:
         afound, bfound, cfound = analyze_tail(time, denoised_trace, trough_loc, endtime, SampleRate)
         if afound is not None and bfound is not None and cfound is not None:
             # Add filename, a, b, c to the summary table
-            new_row = {'Filename': file, 'a': afound, 'b': bfound, 'c': cfound}
+            new_row = {'Filename': file_n, 'a': afound, 'b': bfound, 'c': cfound}
             df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     except Exception as e:
         filesnotworking.append(file)
@@ -167,6 +178,16 @@ plt.title('Exponential Fit: Averaged Line of Best Fit for Sweep ' + str(swp))
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
+# Export all the dataframes from all the files analyzed to a single Excel file
+# Construct the file name
+summary_excelname = os.path.join(save_directory, f"AvgTails_{protocolname}_sweep{swp}.xlsx")
+
+# Use ExcelWriter to save the DataFrame to an Excel file
+with pd.ExcelWriter(summary_excelname, engine='xlsxwriter') as writer:
+    
+    df.to_excel(writer, sheet_name=protocolname, index=False)
 
 # Show files not working
 string = ','.join(str(x) for x in filesnotworking)
