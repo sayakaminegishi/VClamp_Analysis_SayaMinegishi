@@ -82,7 +82,8 @@ for file in file_paths:
 
             #get duration of depolarization for the sweep (i.e. find endtime)
             #depolarization start time
-            starttime, endtime = getStartEndTail("Okada",swp)
+            starttime, endtime = getStartEndTail("Okada_dep",swp)
+            startTail, endTail = getStartEndTail("Okada_tail",swp)
 
             depDuration = endtime - starttime 
             depdurationlist.append(depDuration)
@@ -107,7 +108,7 @@ for file in file_paths:
             denoised_trace = low_pass_filter(trace, SampleRate)
 
             #### analyze tail current - use tail current length that's equal to Henckels
-            tailanalysis_df, tailEquation = getExpTailModel("Okada", file, swp)
+            tailanalysis_df, tailEquation = getExpTailModel("Okada_tail", file, swp)
 
 
             # Get peak amplitude

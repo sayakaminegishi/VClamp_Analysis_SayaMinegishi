@@ -9,6 +9,7 @@ Contact: minegishis@brandeis.edu
 Last modified: June 17 2024
 
 '''
+import os
 import numpy as np
 import scipy.optimize
 import scipy.signal
@@ -18,6 +19,10 @@ import pandas as pd
 import traceback
 import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog
+from getFilePath import get_file_path # type: ignore
+from get_tail_times import getStartEndTail
+from remove_abf_extension import remove_abf_extension # type: ignore
+from getTailCurrentModel import getExpTailModel
 
 # Function to apply low-pass filter
 def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
@@ -77,10 +82,12 @@ print(f"Selected files: {file_paths}")
 
 # Ask sweep number to analyze
 swp = int(input("Enter the sweep number to analyze: "))
+protocolname = str(input("Enter protocol name: "))
 
-# Define start and end times
-starttime = 0.6  # start of the hyperpolarizing step leading to the tail current (includes the part BEFORE trough)
-endtime = 1.5  # end of tail current, ie the hyperpolarizing step (sec)
+starttime, endtime = getStartEndTail(protocolname,swp)
+# # Define start and end times
+# starttime = 0.6  # start of the hyperpolarizing step leading to the tail current (includes the part BEFORE trough)
+# endtime = 1.5  # end of tail current, ie the hyperpolarizing step (sec)
 
 filesnotworking = []
 
@@ -93,8 +100,14 @@ for file in file_paths:
         print("\nWorking on " + file)
 
         abfdata = pyabf.ABF(file)
+        num_channels = abfdata.channelCount
+        if num_channels == 1:
+            abfdata.setSweep(swp)
+        else:
+            abfdata.setSweep(sweepNumber= swp, channel= 1)
+
        
-        abfdata.setSweep(swp)
+  
         
         # Visualize data
         plt.figure()

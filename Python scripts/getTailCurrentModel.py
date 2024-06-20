@@ -93,7 +93,7 @@ def getExpTailModel(protocolname, filepath, sweepnumber):
             abfdata.setSweep(sweepNumber= sweepnumber, channel= 1)
 
    
-        if protocolname == "Okada":
+        if protocolname == "Okada_tail":
             k = sweepnumber
         else:
             k = 0 #i.e. not okada. 

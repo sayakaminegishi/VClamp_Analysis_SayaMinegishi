@@ -16,7 +16,7 @@ from scipy import optimize
 import pandas as pd
 
 ##### USER-DEFINED INPUT DATA ############
-filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0005.abf"  # file to analyze
+filepath = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0005_NilWN_1-5mMCa.abf"  # file to analyze
 starttime = 0.3547 #start of region of interest (the linear part in command) (sec)
 endtime = 1.7538  #end of region of interest (sec)
 

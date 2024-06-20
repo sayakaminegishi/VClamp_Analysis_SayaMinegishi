@@ -1,7 +1,7 @@
 
 ''' This program gives the start and end times of tail currents (in ms) a specified protocol.
 
-    protocolname = name of protocol used, in string format (Henckels, Okada, BradleyLong, BradleyShort, AndyLam)
+    protocolname = name of protocol used, in string format (Henckels, Okada_dep, Okada_tail, BradleyLong, BradleyShort, AndyLam)
     enter i=0 for second argument if not Okada Ca dependent - enter i=n for Okada, where n is the sweep number of interest
 
 
@@ -21,11 +21,15 @@ def getStartEndTail(protocolname,i):
 
         startTail =0.5970
         endTail = 1.5975
-    elif protocolname == "Okada":
-        startdep=0.1124 #start of depolarization
-        enddep = i * 0.102 + 0.1124 #end of depolarization
-        startTail = enddep
-        endTail =  enddep+ 0.6312 - 0.5811 #same as Henckels
+
+    elif protocolname == "Okada_dep":
+        #gives depolarization start and end times
+        startTail=0.1124 #start of depolarization
+        endTail = i * 0.102 + 0.1124 #end of depolarization
+    elif protocolname == "Okada_tail":
+        #gives tail current start and end times
+        startTail = i * 0.102 + 0.1124
+        endTail =  startTail+ 0.6312 - 0.5811 #same as Henckels
 
     # elif protocolname == "AndyLam":
     #     startTail =0.5970
