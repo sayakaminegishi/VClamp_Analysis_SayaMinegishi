@@ -9,6 +9,7 @@
     Contact: minegishis@brandeis.edu
     Last modified: Jun 19 2024
 '''
+#TODO: modify so that tail current duration is the same for all protocols.
 
 
 def getStartEndTail(protocolname,i):
@@ -21,8 +22,10 @@ def getStartEndTail(protocolname,i):
         startTail =0.5970
         endTail = 1.5975
     elif protocolname == "Okada":
-        startTail=0.1124
-        endTail = i * 0.102 + 0.1124
+        startdep=0.1124 #start of depolarization
+        enddep = i * 0.102 + 0.1124 #end of depolarization
+        startTail = enddep
+        endTail =  enddep+ 0.6312 - 0.5811 #same as Henckels
 
     # elif protocolname == "AndyLam":
     #     startTail =0.5970

@@ -6,8 +6,7 @@ Created by: Sayaka (Saya) Minegishi
 Contact: minegishis@brandeis.edu
 Last modified: June 19 2024
 '''
-#TODO: ALLOW USER TO SELECT WHICH DIRECTORY TO STORE THE FILES
-
+#TODO: fix tail current times for each sweep
 import os
 import numpy as np
 import scipy.optimize
@@ -21,6 +20,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from getFilePath import get_file_path # type: ignore
 from get_tail_times import getStartEndTail
 from remove_abf_extension import remove_abf_extension # type: ignore
+from getTailCurrentModel import getExpTailModel
 
 
 # Function to apply low-pass filter
@@ -39,11 +39,20 @@ file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF File
 
 print(f"Selected files: {file_paths}")
 
+# Ask user to select a directory to save the Excel files
+save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
+
+if not save_directory:
+    print("No directory selected. Exiting...")
+    exit()
+
+print(f"Selected save directory: {save_directory}")
+
 
 filesnotworking = []
 
 # Initialize summary table for recording data
-columns = ['Filename', 'Sweep_number', 'Peak_amplitude(pA)', 'Input_voltage(mV)','AreaUnderCurve(pA*mV)']  # column headers
+columns = ['Filename', 'Sweep_number', 'Peak_amplitude(pA)', 'Input_voltage(mV)','AreaUnderCurve(pA*mV)', 'Fitted_tail_equation']  # column headers
 
 dataframes = []
 
@@ -97,6 +106,10 @@ for file in file_paths:
             # Denoise the trace
             denoised_trace = low_pass_filter(trace, SampleRate)
 
+            #### analyze tail current - use tail current length that's equal to Henckels
+            tailanalysis_df, tailEquation = getExpTailModel("Okada", file, swp)
+
+
             # Get peak amplitude
             mask1 = (time >= starttime) & (time <= endtime)
             filtered_values = denoised_trace[mask1]  # trace values, for the hyperpolarizing step
@@ -115,11 +128,12 @@ for file in file_paths:
             if peakamp is not None and areaundercurve_dep is not None and vAtPeak is not None:
                 # Add filename, peakamp, areaundercurve, and voltage input to summary table
                 new_row = {
-                    'Filename': file, 
+                    'Filename': file_n, 
                     'Sweep_number': swp, 
                     'Peak_amplitude(pA)': peakamp, 
                     'Input_voltage(mV)': vAtPeak, 
-                    'AreaUnderCurve(pA*mV)': areaundercurve_dep
+                    'AreaUnderCurve(pA*mV)': areaundercurve_dep,
+                    'Fitted_tail_equation': tailEquation
                 }
                 df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
                 
@@ -157,7 +171,7 @@ for file in file_paths:
 
 
 # Export all the dataframes from all the files analyzed to a single Excel file
-summary_excelname = "Summary_Okada_All.xlsx"
+summary_excelname = summary_excelname = os.path.join(save_directory, "Summary_Okada_All.xlsx") #save to the specified directory
 with pd.ExcelWriter(summary_excelname, engine='xlsxwriter') as writer:
     for file, df in zip(file_paths, dataframes):
         file_n = remove_abf_extension(file)
