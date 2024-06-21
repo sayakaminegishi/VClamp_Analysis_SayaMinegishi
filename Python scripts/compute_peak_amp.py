@@ -114,6 +114,15 @@ print("Mean peak amplitude(pA): " + str(mean_a))
 print("Mean Input_voltage(mV): " + str(mean_b))
 print("Mean area under curve(mV*pA): " + str(mean_c))
 
+# Export all the dataframes from all the files analyzed to a single Excel file
+# Construct the file name
+summary_excelname = os.path.join(save_directory, f"AvgTails_{protocolname}_sweep{swp}.xlsx")
+
+# Use ExcelWriter to save the DataFrame to an Excel file
+with pd.ExcelWriter(summary_excelname, engine='xlsxwriter') as writer:
+    
+    df.to_excel(writer, sheet_name=protocolname, index=False)
+
 
 # Show files not working
 string = ','.join(str(x) for x in filesnotworking)

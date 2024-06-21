@@ -48,7 +48,7 @@ def getExpTailModel(protocolname, filepath, sweepnumber):
         try:
             params, cv = scipy.optimize.curve_fit(monoExp, time[mask], trace[mask], p0=initial_guess, bounds=bounds, maxfev=10000)
             a, b, c = params
-            tauSec = -1 / b  # Tau (time constant)
+            tau = abs((1/b)/(SampleRate))  # Tau (time constant) in sec
 
             # Determine quality of the fit
             squaredDiffs = np.square(trace[mask] - monoExp(time[mask], *params))
@@ -70,9 +70,10 @@ def getExpTailModel(protocolname, filepath, sweepnumber):
             # Inspect the parameters
             print(f"Sweep {sweep}")
             print(f"Y = {a} * exp({b} * x) + {c}")
-            print(f"Tau = {tauSec * 1e6} µs")
+            print(f"Tau = {tau * 1e6} µs")
+            taumicrosec = tau * 1e6 #time constant in microseconds
 
-            return a, b, c
+            return a, b, c, taumicrosec
         except RuntimeError as e:
             print(f"Error: {e}")
             return None, None, None
@@ -82,7 +83,7 @@ def getExpTailModel(protocolname, filepath, sweepnumber):
     num_channels = abfdata.channelCount
     
     # Initialize summary table for recording data
-    columns = ['sweep_number', 'a', 'b', 'c', 'tail_amplitude(mV)']  # column headers
+    columns = ['sweep_number', 'a', 'b', 'c', 'tail_amplitude(mV)', 'tau(µs)']  # column headers
     df = pd.DataFrame(columns=columns)  # create an empty dataframe with the specified columns
 
     try:
@@ -121,14 +122,14 @@ def getExpTailModel(protocolname, filepath, sweepnumber):
         baseline = trace[0]  # baseline
         amplitude = trough_val - baseline  # peak negative amplitude, in mV
 
-        afound, bfound, cfound = analyze_tail(time, denoised_trace, trough_loc, endtime, i, SampleRate)
+        afound, bfound, cfound, taumicrosec = analyze_tail(time, denoised_trace, trough_loc, endtime, i, SampleRate)
         if afound is not None and bfound is not None and cfound is not None:
             # Add sweep number, a, b, c to the summary table
             afound = round(afound, 3) #round to 3 decimal places
             bfound = round(bfound, 3)
             cfound = round(afound, 3)
 
-            new_row = {'sweep_number': i, 'a': afound, 'b': bfound, 'c': cfound, 'tail_amplitude(mV)': amplitude}
+            new_row = {'sweep_number': i, 'a': afound, 'b': bfound, 'c': cfound, 'tail_amplitude(mV)': amplitude, 'tau(µs)': taumicrosec}
             df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
             df.round(3)
         ############# Get summary data for the cell ################

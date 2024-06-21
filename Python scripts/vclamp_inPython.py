@@ -7,6 +7,7 @@ Created on Mar 24 2024
 
 Description: main file for analyzing voltage-clamp traces. sweep numbers use 0-based indexing (eg to get 1st sweep, enter 0).
 """
+#TODO: fix memtest
 
 import os
 import numpy as np
@@ -22,7 +23,7 @@ from getFilePath import get_file_path # type: ignore
 from get_tail_times import getStartEndTail
 from remove_abf_extension import remove_abf_extension # type: ignore
 from getTailCurrentModel import getExpTailModel
-
+import pyabf.tools.memtest
 
 ##### LOAD DATA ############
 app = QApplication([])
@@ -84,13 +85,15 @@ for i in abfdata.sweepList:
 
 
     ###### Find membrane properties across time- resistance, capacitance, holding current
+
+    timeInSec = abfdata.sweepTimesMin #time in seconds
     memtest = pyabf.tools.memtest.Memtest(abfdata)
     #properties in a vector, where index corresponds to time (in indices)
     holdingPotentials = memtest.Ih.values
     membraneResistances = memtest.Rm.values
     accessResistances = memtest.Ra.values
     membraneCapacitances = memtest.CmStep.values
-    timeInSec = abfdata.sweepTimesMin #time in seconds
+
 
     # #take the first data pt for each property
     # RmInitial = membraneResistances(0)
@@ -153,21 +156,6 @@ for i in abfdata.sweepList:
 
 
 #     ######### EXPONENTIAL FIT FOR TAIL CURRENT #################
-#     #TODO: fit a model for end of vstep to trough, then trough to end of hyperpolarixation 
-#     #first extract the region of hyperpolarization, with hstartT & hendT as start and end of hyperpolarizing step
-
-
-#     x = abfdata.sweepX
-#     y=abfdata.sweepY
-
-#     sttime = 0.6 #start of tail current in secs
-#     endtime = 1.6
-
-#     analyze_tail(x,y,sttime,endtime, i, samplerate)
-
-
-
-
 
 
 
