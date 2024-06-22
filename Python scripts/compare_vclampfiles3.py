@@ -1,11 +1,12 @@
 ''' COMPARES CURRENT PROPERTIES BETWEEN FILES, WITH A GIVEN SWEEP NUMBER AND PROTOCOL.
 
+MAIN SCRIPT FOR ANALYZING CHANGES IN CHANNEL BEHAVIOR FOR ONE CELL, WITH MULTIPLE CONDITIONS (consecutive runs of protocol).
+
 Created by: Sayaka (Saya) Minegishi, with some support from chatgpt.
 Contact: minegishis@brandeis.edu
 Last modified: June 22 2024
 
 '''
-
 import os
 import numpy as np
 import scipy.optimize
@@ -21,6 +22,7 @@ from get_tail_times import getStartEndTail, getDepolarizationStartEnd, get_last_
 from remove_abf_extension import remove_abf_extension  # type: ignore
 from getTailCurrentModel import getExpTailModel
 from getFilePath import get_only_filename
+
 
 
 def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
