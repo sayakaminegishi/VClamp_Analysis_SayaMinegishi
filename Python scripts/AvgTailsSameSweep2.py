@@ -146,7 +146,7 @@ for file in file_paths:
 
         trough_val = np.min(filtered_values)  # minimum value of tail current, in mV
         index_of_min = np.argmin(filtered_values)  # find the index of the minimum value
-        trough_loc = filtered_time[index_of_min] + starttime # trough location, in seconds
+        trough_loc = filtered_time[index_of_min]  # trough location, in seconds
 
         afound, bfound, cfound, tauSec = analyze_tail(time, denoised_trace, trough_loc, endtime, SampleRate)
         if afound is not None and bfound is not None and cfound is not None:

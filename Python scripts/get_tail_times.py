@@ -111,6 +111,10 @@ def getStartEndTail(protocolname,i):
         endTail = 0.5970 + (0.6312-0.5811) #duration of tail same as Henckels to keep everything consistent
         #endTail = 1.5975 - from original protocol
 
+    elif protocolname == "BradleyShort":
+        startTail = 0.1960
+        endTail = 0.1960 + (0.6312-0.5811)
+
     elif protocolname == "Okada_dep":
         #gives depolarization start and end times
         startTail=0.1124 #start of depolarization
@@ -169,6 +173,7 @@ def get_last_sweep_number(protocolname):
 
         lastsweep = 10
     
+    
     return lastsweep
 
 
@@ -183,8 +188,10 @@ def getDepolarizationStartEnd(protocolname):
         startdep = 0.0962
         enddep = 0.5969
 
-    # elif protocolname == "BradleyShort":
-    #     #TODO: ENTER STUFF
+    elif protocolname == "BradleyShort":
+        startdep = 0.0969
+        enddep = 0.1960
+   
 
     return startdep, enddep
 

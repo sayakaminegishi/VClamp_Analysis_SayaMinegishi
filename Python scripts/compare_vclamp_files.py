@@ -1,7 +1,14 @@
-''' compare V-clamp files
+''' COMPARE V-CLAMP FILES FOR A SPECIFIED SWEEP & PROTOCOL, GET SUMMARY
+
 Used in data where multiple files are created from the same file and with the same protocol in sequence in v-clamp.
 Analyzes the properties of the outward and inward currents (tail) in a specified sweep, and compares these properties across different files.
 Plots a graph to show the trend with each increasing file number.
+
+Just click run.
+
+Created by: Sayaka (Saya) Minegishi
+Contact: minegishis@brandeis.edu
+Last modified: June 22 2024
 
 
 '''
@@ -14,7 +21,7 @@ import pyabf
 import pandas as pd
 import traceback
 import logging
-from PyQt5.QtWidgets import QApplication, QFileDialog
+from PyQt5.QtWidgets import QApplication, QFileDialog,QMessageBox
 from get_tail_times import getStartEndTail, getDepolarizationStartEnd
 from get_tail_times import get_last_sweep_number
 from get_protocol_name import get_protocol_name # type: ignore
@@ -27,15 +34,33 @@ from AvgTailsSameSweep2 import analyze_tail, get_tail_model, monoExp
 #select files
 app = QApplication([])
 options = QFileDialog.Options()
-file_paths = get_file_paths() #get the files of interest via an interactive popup window, and sort them in alphabetical order
+
+file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF Files (*.abf);;All Files (*)", options=options)
+
+
+# Check if a file path was selected
+if file_paths:
+    # Sort the selected file paths alphabetically
+    sorted_file_paths = sorted(file_paths)
+    
+else:
+    # Show an error message if no file was selected and re-prompt the user
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setText("No file selected. Please select a file.")
+    msg.setWindowTitle("Warning")
+    msg.exec_()
+
+
+save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
 
 # Ask protocol type
-protocolname = str(input("Enter the protocol type - Henckels, BradleyLong or BradleyShort: "))
+protocolname = input("Enter the protocol type - Henckels, BradleyLong or BradleyShort: ")
 
 #ask sweep number
 sweepn = input("Enter the sweep number to analyze (zero-indexed), or enter 'final' for the last sweep: ")
 if sweepn == "final":
-    sweepnumber = get_last_sweep_number(protocolname)
+    sweepnumber = int(get_last_sweep_number(protocolname))
 else:
     sweepnumber = int(sweepn)
 
@@ -47,7 +72,6 @@ columns = ['Filename', 'Peak_amplitude(pA)', 'Input_voltage_at_peak(mV)','AreaUn
 
 
 df = pd.DataFrame(columns=columns)  # create an empty dataframe with the specified columns
-save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
 
 #create an array for storing EACH property, where ith element = ith recording in chronological order.
 max_amplitudes = [] #max outward current amplitude for this sweep, from each file.
@@ -57,7 +81,7 @@ tail_durations = [] #duration of the tail current.
 tau_vals_tail = [] #tau values of the tail current in each file, for this sweep.
 
 
-for file in file_paths:
+for file in sorted_file_paths:
     try:
         ####### GET TRACE AND DENOISE #################
 
@@ -146,7 +170,7 @@ for file in file_paths:
                     }
             
             df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-            
+
     except Exception as e:
         filesnotworking.append(file)
         logging.error(traceback.format_exc())  # log error
