@@ -58,7 +58,7 @@ def analyze_tail(time, trace, trough, HypEnd, SampleRate):
         print(f"Tau = {tauSec} sec")
 
         # Visualize fitted curve
-        plt.scatter(time, trace, label="data")
+        plt.plot(time, trace, label="data")
         x_fit = np.linspace(time[mask].min(), time[mask].max(), 1000)  # x values for line of best fit
         y_fit = monoExp(x_fit, *params)  # y values for fitted curve
         plt.plot(x_fit, y_fit, c="red", label="fit")
@@ -210,7 +210,7 @@ for file in sorted_file_paths:
         vAtPeak = inputv2[index_of_pk]
 
         # Fit exponential model to tail current & get tau and R²
-        a, b, c, tauSec, rSquared = analyze_tail(time, trace, trough_loc, endTail, SampleRate)
+        a, b, c, tauSec, rSquared = analyze_tail(time, denoised_trace, trough_loc, endTail, SampleRate)
         if a is None or b is None or c is None or tauSec is None:
             raise ValueError("Exponential fit to tail current failed.")
         
