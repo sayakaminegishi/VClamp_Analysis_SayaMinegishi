@@ -32,11 +32,14 @@ def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
     filtered_trace = scipy.signal.filtfilt(b, a, trace)
     return filtered_trace
 
+
+def monoExp(x, a, b, c):
+    return a * np.exp(b * x) + c
+
 # Function to analyze the tail current (from trough to end of tail)
 def analyze_tail(time, trace, trough, HypEnd, SampleRate):
     
-    def monoExp(x, a, b, c):
-        return a * np.exp(b * x) + c
+   
     
     mask = (time >= trough) & (time <= HypEnd)  # region to analyze - from trough to end of tail
 
@@ -67,7 +70,7 @@ def analyze_tail(time, trace, trough, HypEnd, SampleRate):
         print(f"Y = {a} * exp({b} * x) + {c}")
         print(f"Tau = {tauSec * 1e6} µs")
 
-        return a, b, c
+        return a, b, c, tauSec
 
     except RuntimeError as e:
         print(f"Error: {e}")
@@ -143,9 +146,9 @@ for file in file_paths:
 
         trough_val = np.min(filtered_values)  # minimum value of tail current, in mV
         index_of_min = np.argmin(filtered_values)  # find the index of the minimum value
-        trough_loc = filtered_time[index_of_min]  # trough location, in seconds
+        trough_loc = filtered_time[index_of_min] + starttime # trough location, in seconds
 
-        afound, bfound, cfound = analyze_tail(time, denoised_trace, trough_loc, endtime, SampleRate)
+        afound, bfound, cfound, tauSec = analyze_tail(time, denoised_trace, trough_loc, endtime, SampleRate)
         if afound is not None and bfound is not None and cfound is not None:
             # Add filename, a, b, c to the summary table
             new_row = {'Filename': file_n, 'a': afound, 'b': bfound, 'c': cfound}
@@ -192,4 +195,27 @@ with pd.ExcelWriter(summary_excelname, engine='xlsxwriter') as writer:
 # Show files not working
 string = ','.join(str(x) for x in filesnotworking)
 print("Files not working:" + string)
+
+
+########## FUNCTION FORM OF ABOVE SCRIPT - gives exponential fitted model for tail ##########################
+def get_tail_model(time, denoised_trace, trough_loc, endtime, SampleRate):
+    #starttail = start time of tail, endtail = end time of tail
+
+    try:
+        afound, bfound, cfound,tauSec = analyze_tail(time, denoised_trace, trough_loc, endtime, SampleRate)
+        if afound is not None and bfound is not None and cfound is not None:
+            
+            # Print the averaged line of best fit
+            print(f"Averaged line of best fit: y = {afound:.3e} * exp({bfound:.2f} * x) + {cfound:.2f}")
+
+            # return resulting curve
+            x_values = np.linspace(starttime, endtime, 1000)
+            y_values = afound * np.exp(bfound * cfound) + mean_c
+
+            return x_values, y_values
+
+    except Exception as e:
+        logging.error(traceback.format_exc())  # log error
+
+
 

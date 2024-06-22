@@ -7,6 +7,8 @@ Works for Henckels & Bradley Protocols.
 Created by: Sayaka (Saya) Minegishi
 Contact: minegishis@brandeis.edu
 Last modified: June 17 2024
+
+$FIX!!!!!!! tail current amp not dep.
 '''
 import numpy as np
 import scipy.optimize
@@ -17,6 +19,9 @@ import pandas as pd
 import traceback
 import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog
+from get_tail_times import getStartEndTail
+from get_protocol_name import get_protocol_name # type: ignore
+
 
 # Function to apply low-pass filter
 def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
@@ -35,15 +40,10 @@ file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF File
 print(f"Selected files: {file_paths}")
 
 # Ask protocol type
-protocolname = str(input("Enter the protocol type - Henckels or Bradley: "))
+protocolname = str(input("Enter the protocol type - Henckels, BradleyLong or BradleyShort: "))
 
 # Define peak time
-if protocolname == "Henckels":
-    starttime = 0.08
-    endtime = 0.5810
-elif protocolname == "Bradley":
-    starttime = 0.0967
-    endtime = 0.5963
+starttime, endtime = getStartEndTail(protocolname, k) #get tail start and end times
 
 
 filesnotworking = []
@@ -51,6 +51,7 @@ filesnotworking = []
 # Initialize summary table for recording data
 columns = ['Filename', 'Peak_amplitude(pA)', 'Input_voltage(mV)','AreaUnderCurve(pA*mV)']  # column headers
 df = pd.DataFrame(columns=columns)  # create an empty dataframe with the specified columns
+save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
 
 
 for file in file_paths:
