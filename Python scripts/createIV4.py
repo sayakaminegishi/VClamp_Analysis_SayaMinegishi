@@ -3,6 +3,8 @@ Does a batch-analysis on multiple selected files and calculates mean reversal po
 
 Creates an IV curve from a given ABF file.
 
+When doing batch-analysis, make sure that all the files selected use the SAME PROTOCOL TYPE.
+
 Created by: Sayaka (Saya) Minegishi with some help from chatgpt.
 Contact: minegishis@brandeis.edu
 June 23 2024
