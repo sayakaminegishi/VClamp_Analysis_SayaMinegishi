@@ -1,18 +1,30 @@
-''' CREATE IV CURVE AND APPROXIMATE REVERSAL POTENTIAL, for a given file path & protocol name
+''' CREATE IV CURVE AND APPROXIMATE REVERSAL POTENTIAL FROM VOLTAGE-STEPS, for a given file path & protocol name. 
+Does a batch-analysis on multiple selected files and calculates mean reversal potential from all files tested.
 
-Creates an IV curve from a given ABF file
+Creates an IV curve from a given ABF file.
+
 Created by: Sayaka (Saya) Minegishi with some help from chatgpt.
 Contact: minegishis@brandeis.edu
 June 23 2024
 
 '''
 
-
-
-
-import pyabf
-import matplotlib.pyplot as plt
+import os
 import numpy as np
+import scipy.optimize
+import scipy.signal
+import matplotlib.pyplot as plt
+import pyabf
+import pandas as pd
+import traceback
+import logging
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QMessageBox
+from getFilePath import get_file_path  # type: ignore
+from get_tail_times import getStartEndTail, getDepolarizationStartEnd, get_last_sweep_number
+from remove_abf_extension import remove_abf_extension  # type: ignore
+from getTailCurrentModel import getExpTailModel
+from getFilePath import get_only_filename
+
 from get_tail_times import getDepolarizationStartEnd
 from apply_low_pass_filter_FUNCTION import low_pass_filter
 
@@ -34,7 +46,7 @@ def find_line_of_bestFit(x1, y1, x2, y2):
     
     return m, b
 
-def createIV3(filename, protocolname):
+def createIV4(filename, protocolname):
     # filename = path to file
     abf = pyabf.ABF(filename)
     SampleRate = abf.dataRate
@@ -43,7 +55,7 @@ def createIV3(filename, protocolname):
     currents = []
     voltages = []
     conductances = []
-
+    
     for sweep in abf.sweepList:
         abf.setSweep(sweep)
         
@@ -91,6 +103,7 @@ def createIV3(filename, protocolname):
         "conductances": conductances,
         "reversal_potential": revVm
     }
+    
 
     # Plot I/V curve
     plt.figure(figsize=(8, 5))
@@ -119,10 +132,57 @@ def createIV3(filename, protocolname):
     plt.title(f"Conductance/Voltage Relationship of {abf.abfID}")
     plt.show()
 
-    return iv_data
+    
+    return iv_data, revVm
 
 ####################
+##### FILE SELECTION
+# Main script
+app = QApplication([])
 
-filename = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_21_02_0007.abf"
-protocol = "BradleyShort"
-iv_data = createIV3(filename, protocol)
+# Select files
+options = QFileDialog.Options()
+file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF Files (*.abf);;All Files (*)", options=options)
+
+if not file_paths:
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setText("No file selected. Please select a file.")
+    msg.setWindowTitle("Warning")
+    msg.exec_()
+    exit()
+
+sorted_file_paths = sorted(file_paths)
+
+# Select directory to save Excel files
+save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
+
+# Ask for protocol type
+protocol_types = ["Henckels", "BradleyLong", "BradleyShort"]
+protocolname, ok = QInputDialog.getItem(None, "Select Protocol Type", "Enter the protocol type:", protocol_types, 0, False)
+
+if not ok:
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setText("No protocol type selected. Please select a protocol type.")
+    msg.setWindowTitle("Warning")
+    msg.exec_()
+    exit()
+
+iv_data_collection = [] #stores the dictionary containg IV properties from ith file. a list of dictionaries
+filesnotworking = []
+########### MAIN PROGRAM ###############
+
+reversalPotentials = [] #stores the reversal potentials calculated from ith file.
+
+for file in sorted_file_paths:
+    try:
+        iv_data, revVm = createIV4(file, protocolname)
+        iv_data_collection.append(iv_data)
+        reversalPotentials.append(revVm)
+    except Exception as e:
+        filesnotworking.append(file)
+        logging.error(traceback.format_exc())  # log error
+
+meanRevVm = np.average(reversalPotentials) #mean reversal potential from all the files
+print(f"\nThe mean reversal potential is {meanRevVm} mV")
