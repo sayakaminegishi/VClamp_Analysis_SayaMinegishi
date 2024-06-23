@@ -5,14 +5,20 @@
 import pyabf
 import matplotlib.pyplot as plt
 import numpy as np
+from get_tail_times import getDepolarizationStartEnd
+from apply_low_pass_filter_FUNCTION import low_pass_filter
 
 
-def createIV2(filename):
+def createIV2(filename,protocolname):
     # filename = path to file
 
     abf = pyabf.ABF(filename)
-    pt1 = int(500 * abf.dataPointsPerMs)
-    pt2 = int(1000 * abf.dataPointsPerMs)
+    SampleRate = abf.dataRate
+    #denoise
+    abf = low_pass_filter(abf, SampleRate)
+    st, en = getDepolarizationStartEnd(protocolname)
+    pt1 = int(st * abf.dataPointsPerMs)
+    pt2 = int(en * abf.dataPointsPerMs)
 
     currents = []
     voltages = []
@@ -33,14 +39,14 @@ def createIV2(filename):
     plt.title(f"I/V Relationship of {abf.abfID}")
     plt.show()
 
-    # Plot Conductance vs Voltage curve
-    plt.figure(figsize=(8, 5))
-    plt.grid(alpha=.5, ls='--')
-    plt.plot(voltages, conductances, '.-', ms=15)
-    plt.ylabel("Conductance (nS)")
-    plt.xlabel("Voltage (mV)")
-    plt.title(f"Conductance/Voltage Relationship of {abf.abfID}")
-    plt.show()
+    # # Plot Conductance vs Voltage curve
+    # plt.figure(figsize=(8, 5))
+    # plt.grid(alpha=.5, ls='--')
+    # plt.plot(voltages, conductances, '.-', ms=15)
+    # plt.ylabel("Conductance (nS)")
+    # plt.xlabel("Voltage (mV)")
+    # plt.title(f"Conductance/Voltage Relationship of {abf.abfID}")
+    # plt.show()
 
     # Return a dictionary with the IV data
     iv_data = {
@@ -54,5 +60,6 @@ def createIV2(filename):
 
 ####################
     
-filename = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_06_01_0005.abf"
-dict = createIV2(filename)
+filename = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/2024_06_21_02_0007.abf"
+protocol = "BradleyShort"
+dict = createIV2(filename, protocol)
