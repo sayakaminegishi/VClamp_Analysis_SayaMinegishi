@@ -1,14 +1,14 @@
-''' CREATE IV CURVE AND APPROXIMATE REVERSAL POTENTIAL FROM VOLTAGE-STEPS, for a given file path & protocol name. 
-Does a batch-analysis on multiple selected files and calculates mean reversal potential from all files tested.
+'''
+CREATE IV CURVE AND APPROXIMATE REVERSAL POTENTIAL FROM VOLTAGE-STEPS
 
-Creates an IV curve from a given ABF file.
+This script processes ABF files to create IV curves and approximate the reversal potential.
 
-When doing batch-analysis, make sure that all the files selected use the SAME PROTOCOL TYPE.
+It performs a batch-analysis on multiple selected files and calculates the mean reversal potential from all files tested.
+Note: Ensure all selected files use the SAME PROTOCOL TYPE.
 
-Created by: Sayaka (Saya) Minegishi with some help from chatgpt.
+Created by: Sayaka (Saya) Minegishi with some help from ChatGPT.
 Contact: minegishis@brandeis.edu
-June 23 2024
-
+Date: June 23, 2024
 '''
 
 import os
@@ -26,19 +26,16 @@ from get_tail_times import getStartEndTail, getDepolarizationStartEnd, get_last_
 from remove_abf_extension import remove_abf_extension  # type: ignore
 from getTailCurrentModel import getExpTailModel
 from getFilePath import get_only_filename
-
-from get_tail_times import getDepolarizationStartEnd
 from apply_low_pass_filter_FUNCTION import low_pass_filter
 
 def find_line_of_bestFit(x1, y1, x2, y2):
     """
     Calculate the equation of a line given two points.
-
     (x1, y1) = first point on the line
     (x2, y2) = second point on the line
     """
     if x1 == x2:
-        raise ValueError("The two points have the same x-coordinate, resulting in a vertical line.")
+        return None, None, x1
     
     # Calculate the slope (m)
     m = (y2 - y1) / (x2 - x1)
@@ -46,9 +43,9 @@ def find_line_of_bestFit(x1, y1, x2, y2):
     # Calculate the y-intercept (b)
     b = y1 - m * x1
     
-    return m, b
+    return m, b, None
 
-def createIV4(filename, protocolname):
+def createIV6(filename, protocolname):
     # filename = path to file
     abf = pyabf.ABF(filename)
     SampleRate = abf.dataRate
@@ -74,11 +71,10 @@ def createIV4(filename, protocolname):
         # Convert these to indices
         stindx = np.argmin(np.abs(time - st))  # Closest index to start time
         enidx = np.argmin(np.abs(time - en))   # Closest index to end time
-        midpointidx = int((stindx + enidx) / 2)  # Midpoint index
 
-        # Extract current and voltage at the midpoint index
-        curr = denoised_trace[midpointidx]  # Current for the depolarizing step
-        volt = abf.sweepC[midpointidx]  # Voltage for the depolarizing step
+        # Extract current and voltage at the end index
+        curr = denoised_trace[enidx-3]  # Current for the depolarizing step
+        volt = abf.sweepC[enidx-3]  # Voltage for the depolarizing step
         conduc = curr / volt if volt != 0 else np.nan  # Conductance for the depolarizing step, avoid division by zero
 
         # Store the data
@@ -86,13 +82,19 @@ def createIV4(filename, protocolname):
         voltages.append(volt)
         conductances.append(conduc)
 
-    # Find the two points closest to zero current
-    zero_crossings = [(i, currents[i]) for i in range(1, len(currents)) if currents[i-1] * currents[i] <= 0]
+    # Sort voltages by their absolute values to prioritize those closest to zero
+    sorted_indices = np.argsort(np.abs(voltages))
+    sorted_voltages = [voltages[i] for i in sorted_indices]
+    sorted_currents = [currents[i] for i in sorted_indices]
+
+    # Find the two points closest to zero current within the sorted order
+    zero_crossings = [(i, sorted_currents[i]) for i in range(1, len(sorted_currents)) if sorted_currents[i-1] * sorted_currents[i] <= 0]
 
     if zero_crossings:
         i = zero_crossings[0][0]
-        m, b = find_line_of_bestFit(voltages[i-1], currents[i-1], voltages[i], currents[i])
-        revVm = -b / m
+        m, b, revVm = find_line_of_bestFit(sorted_voltages[i-1], sorted_currents[i-1], sorted_voltages[i], sorted_currents[i])
+        if revVm is None:
+            revVm = -b / m
         print(f"The reversal potential is approximately {revVm:.2f} mV")
     else:
         m = b = revVm = None
@@ -105,7 +107,6 @@ def createIV4(filename, protocolname):
         "conductances": conductances,
         "reversal_potential": revVm
     }
-    
 
     # Plot I/V curve
     plt.figure(figsize=(8, 5))
@@ -134,7 +135,6 @@ def createIV4(filename, protocolname):
     plt.title(f"Conductance/Voltage Relationship of {abf.abfID}")
     plt.show()
 
-    
     return iv_data, revVm
 
 ####################
@@ -171,7 +171,7 @@ if not ok:
     msg.exec_()
     exit()
 
-iv_data_collection = [] #stores the dictionary containg IV properties from ith file. a list of dictionaries
+iv_data_collection = [] #stores the dictionary containing IV properties from ith file. a list of dictionaries
 filesnotworking = []
 ########### MAIN PROGRAM ###############
 
@@ -179,7 +179,7 @@ reversalPotentials = [] #stores the reversal potentials calculated from ith file
 
 for file in sorted_file_paths:
     try:
-        iv_data, revVm = createIV4(file, protocolname)
+        iv_data, revVm = createIV6(file, protocolname)
         iv_data_collection.append(iv_data)
         reversalPotentials.append(revVm)
     except Exception as e:
