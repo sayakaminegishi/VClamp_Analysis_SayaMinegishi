@@ -25,29 +25,27 @@ from getFilePath import get_only_filename
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
 
-######### Define necessary functions
-def showInstructions(messagetoshow):
-    # Show given message as a dialog box
-    msg = QMessageBox()
-    msg.setIcon(QMessageBox.Information)
-    msg.setText(messagetoshow)
-    msg.setWindowTitle("Information")
-    msg.setStandardButtons(QMessageBox.Ok)
-    msg.exec_()
 
+######### DEFINE NECESSARY FUNCTIONS ###########################
 def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
     nyquist = 0.5 * SampleRate
     normal_cutoff = cutoff / nyquist
     b, a = scipy.signal.butter(order, normal_cutoff, btype='low', analog=False)
     filtered_trace = scipy.signal.filtfilt(b, a, trace)
     return filtered_trace
-###################################
 
-# Main script
+
+def convert_s_to_ind(val_sec, samplerate):
+    #function to convert a value in seconds to indices
+    #samplerate = points/second
+    val_ind = samplerate * val_sec #converted value in indices
+    return val_ind
+
+
+############# MAIN PROGRAM ######################################
 app = QApplication([])
 
 # Select files
-showInstructions("Select files to analyze")
 options = QFileDialog.Options()
 file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF Files (*.abf);;All Files (*)", options=options)
 
@@ -62,11 +60,9 @@ if not file_paths:
 sorted_file_paths = sorted(file_paths)
 
 # Select directory to save Excel files
-showInstructions("Select directory to save results")
 save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
 
 # Ask for protocol type
-
 protocol_types = ["Henckels", "BradleyLong", "BradleyShort"]
 protocolname, ok = QInputDialog.getItem(None, "Select Protocol Type", "Enter the protocol type:", protocol_types, 0, False)
 
@@ -150,13 +146,19 @@ for file in sorted_file_paths:
         trace = np.array(abfdata.sweepY)
         inputv = np.array(abfdata.sweepC)
         SampleRate = abfdata.dataRate
-        baseline = trace[0] #TODO: IMPROVE THIS TO TAKE AVG? 
-
+       
         denoised_trace = low_pass_filter(trace, SampleRate)
 
         
         # Get peak current amplitude during depolarization step
         starttime, endtime = getDepolarizationStartEnd(protocolname)
+        #index of starttime in denoised_trace
+        startmask = denoised_trace.find(min(abs(starttime-time))) #1 for the index of the closest point to starttime
+        baseline = np.average(denoised_trace[0:startmask-1]) #baseline is the average of all pts before depolarization begins
+
+
+        #baseline = trace[0]
+
 
         mask2 = (time >= starttime) & (time <= endtime)
         if not np.any(mask2):
@@ -168,11 +170,14 @@ for file in sorted_file_paths:
 
         # Calculate the start index for the last 0.0012 seconds
         duration = endtime - starttime
-        last_duration = 0.0012
+        last_duration = 0.0012 #seconds
         if duration < last_duration:
             raise ValueError("The depolarization period is shorter than 0.0012 seconds.")
+        
+        #convert last_duration from seconds to indices
+        last_dur_idx = convert_s_to_ind(last_duration, SampleRate) #TODO: work from here
 
-        start_index = np.searchsorted(filtered_time2, endtime - last_duration)
+        start_index = filtered_time2[endtime - last_duration]
         if start_index == len(filtered_time2):
             raise ValueError("The calculated start index for the last 0.0012 seconds is out of range.")
 

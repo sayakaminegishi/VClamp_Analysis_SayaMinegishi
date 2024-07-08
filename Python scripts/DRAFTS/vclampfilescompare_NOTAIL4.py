@@ -25,7 +25,22 @@ from getFilePath import get_only_filename
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
 
-######### Define necessary functions
+
+######### DEFINE NECESSARY FUNCTIONS ###########################
+def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
+    nyquist = 0.5 * SampleRate
+    normal_cutoff = cutoff / nyquist
+    b, a = scipy.signal.butter(order, normal_cutoff, btype='low', analog=False)
+    filtered_trace = scipy.signal.filtfilt(b, a, trace)
+    return filtered_trace
+
+
+def convert_s_to_ind(val_sec, samplerate):
+    #function to convert a value in seconds to indices
+    #samplerate = points/second
+    val_ind = samplerate * val_sec #converted value in indices
+    return val_ind
+
 def showInstructions(messagetoshow):
     # Show given message as a dialog box
     msg = QMessageBox()
@@ -35,19 +50,12 @@ def showInstructions(messagetoshow):
     msg.setStandardButtons(QMessageBox.Ok)
     msg.exec_()
 
-def low_pass_filter(trace, SampleRate, cutoff=300, order=5):
-    nyquist = 0.5 * SampleRate
-    normal_cutoff = cutoff / nyquist
-    b, a = scipy.signal.butter(order, normal_cutoff, btype='low', analog=False)
-    filtered_trace = scipy.signal.filtfilt(b, a, trace)
-    return filtered_trace
-###################################
 
-# Main script
+############# MAIN PROGRAM ######################################
 app = QApplication([])
 
 # Select files
-showInstructions("Select files to analyze")
+showInstructions("Select v-clamp files to analyze") #written pop-up instructions 
 options = QFileDialog.Options()
 file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF Files (*.abf);;All Files (*)", options=options)
 
@@ -66,7 +74,6 @@ showInstructions("Select directory to save results")
 save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
 
 # Ask for protocol type
-
 protocol_types = ["Henckels", "BradleyLong", "BradleyShort"]
 protocolname, ok = QInputDialog.getItem(None, "Select Protocol Type", "Enter the protocol type:", protocol_types, 0, False)
 
@@ -79,6 +86,7 @@ if not ok:
     exit()
 
 # Ask for sweep number
+
 sweepn, ok = QInputDialog.getText(None, "Enter Sweep Number", "Enter the sweep number to analyze (zero-indexed), or enter 'final' for the last sweep:")
 
 if not ok:
@@ -142,7 +150,6 @@ for file in sorted_file_paths:
 
         print(f"\nWorking on {file_shortname}\n")
         
-
         abfdata = pyabf.ABF(file)
         abfdata.setSweep(sweepnumber)
 
@@ -150,37 +157,36 @@ for file in sorted_file_paths:
         trace = np.array(abfdata.sweepY)
         inputv = np.array(abfdata.sweepC)
         SampleRate = abfdata.dataRate
-        baseline = trace[0] #TODO: IMPROVE THIS TO TAKE AVG? 
-
-        denoised_trace = low_pass_filter(trace, SampleRate)
-
         
-        # Get peak current amplitude during depolarization step
+        denoised_trace = low_pass_filter(trace, SampleRate)
+        
         starttime, endtime = getDepolarizationStartEnd(protocolname)
+        
+        startmask = np.argmin(np.abs(time - starttime)) 
+        baseline = np.average(denoised_trace[:startmask])
 
         mask2 = (time >= starttime) & (time <= endtime)
         if not np.any(mask2):
             raise ValueError("No data points found in the specified depolarization region.")
 
-        filtered_values2 = denoised_trace[mask2]  # Depolarized region, y
-        filtered_time2 = time[mask2]  # Depolarized region, x
+        filtered_values2 = denoised_trace[mask2]
+        filtered_time2 = time[mask2]
         inputv2 = inputv[mask2]
 
-        # Calculate the start index for the last 0.0012 seconds
         duration = endtime - starttime
         last_duration = 0.0012
         if duration < last_duration:
             raise ValueError("The depolarization period is shorter than 0.0012 seconds.")
+        
+        last_dur_idx = convert_s_to_ind(last_duration, SampleRate)
+        start_index = len(filtered_time2) - last_dur_idx
 
-        start_index = np.searchsorted(filtered_time2, endtime - last_duration)
-        if start_index == len(filtered_time2):
+        if start_index >= len(filtered_time2):
             raise ValueError("The calculated start index for the last 0.0012 seconds is out of range.")
 
-        # Average of y-values in the last 0.0012 seconds
         last_values = filtered_values2[start_index:]
         peak_val = np.mean(last_values)
 
-        # Peak location (use the index from filtered_time2)
         index_of_pk = np.argmin(filtered_values2)
         peak_loc = filtered_time2[index_of_pk]
 
@@ -188,16 +194,12 @@ for file in sorted_file_paths:
         areaundercurve_peak = np.trapz(filtered_values2, filtered_time2)
         vAtPeak = inputv2[index_of_pk]
 
-        # Printing values for debugging
         print(f"Peak Value: {peak_val}")
         print(f"Peak Location: {peak_loc}")
         print(f"Peak Amplitude: {peak_amp}")
         print(f"Area Under Curve: {areaundercurve_peak}")
         print(f"Voltage at Peak: {vAtPeak}")
 
-
-
-        # Add properties to the summary table
         new_row = {
             'Filename': file_shortname,
             'Peak_amplitude(pA)': peak_amp,
@@ -206,70 +208,44 @@ for file in sorted_file_paths:
         }
 
         max_amplitudes.append(peak_amp)
-   
         areasundercurve_peak.append(areaundercurve_peak)
-    
         file_names_list.append(filen_lastdig)
-
         
         df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
     except Exception as e:
         filesnotworking.append(file)
-        logging.error(traceback.format_exc())  # log error
-###########################################################
-# Get summary data
+        logging.error(traceback.format_exc())
+
 print(df)
 
+fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
 
-#plot each feature and compare across files
-fig, axs = plt.subplots(2,1,figsize = (12,10), sharex = True)
-
-#first subplot - max_amplitudes (peak amplitude during V-step)
 axs[0].plot(file_names_list, max_amplitudes, marker='o')
 axs[0].set_title(f"Maximum current amplitude for each file, sweep {sweepnumber}")
 axs[0].set_xlabel('File name')
 axs[0].set_ylabel('current amplitude (pA)')
-axs[0].tick_params(axis='x', rotation=45)  # Rotate x-axis labels
+axs[0].tick_params(axis='x', rotation=45)
 
-
-#fourth subplot
 axs[1].plot(file_names_list, areasundercurve_peak, marker='o', color='purple')
 axs[1].set_title(f"Area under curve at the end of voltage-step, sweep {sweepnumber}")
 axs[1].set_xlabel('File name')
 axs[1].set_ylabel('Area(pA*s)')
-axs[1].tick_params(axis='x', rotation=45)  # Rotate x-axis labels
+axs[1].tick_params(axis='x', rotation=45)
 
-#add blocker start and end times as vertical lines
 axs[0].axvline(x=startblock, color='r', linestyle='--', linewidth=2)
 axs[0].axvline(x=endblock, color='r', linestyle='--', linewidth=2)
 
 axs[1].axvline(x=startblock, color='r', linestyle='--', linewidth=2)
 axs[1].axvline(x=endblock, color='r', linestyle='--', linewidth=2)
 
-
-
-
-
-# Adjust layout to prevent overlap
 plt.tight_layout()
-
-# Display the plot
 plt.show()
 
-
-
-
-
-###############################
-
-# Export all the dataframes from all the files analyzed to a single Excel file
 summary_excelname = os.path.join(save_directory, f"VclampSummary_{protocolname}_sweep{sweepnumber}_NOTAIL.xlsx")
 
-# Use ExcelWriter to save the DataFrame to an Excel file
 with pd.ExcelWriter(summary_excelname, engine='xlsxwriter') as writer:
     df.to_excel(writer, sheet_name=protocolname, index=False)
 
-# Show files not working
 string = ', '.join(str(x) for x in filesnotworking)
 print(f"Files not working: {string}")
