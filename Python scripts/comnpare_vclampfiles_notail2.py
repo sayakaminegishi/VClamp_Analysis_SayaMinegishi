@@ -150,13 +150,18 @@ for file in sorted_file_paths:
         trace = np.array(abfdata.sweepY)
         inputv = np.array(abfdata.sweepC)
         SampleRate = abfdata.dataRate
-        baseline = trace[0] #TODO: IMPROVE THIS TO TAKE AVG? 
+        #baseline = trace[0] #TODO: IMPROVE THIS TO TAKE AVG? 
 
         denoised_trace = low_pass_filter(trace, SampleRate)
 
         
         # Get peak current amplitude during depolarization step
         starttime, endtime = getDepolarizationStartEnd(protocolname)
+
+        # Calculate baseline as the average current from 0 to starttime
+        startmask = np.argmin(np.abs(time - starttime)) #get CLOSEST INDEX to starttime
+        baseline = np.average(denoised_trace[:startmask])
+
 
         mask2 = (time >= starttime) & (time <= endtime)
         if not np.any(mask2):
@@ -181,7 +186,7 @@ for file in sorted_file_paths:
         peak_val = np.mean(last_values)
 
         # Peak location (use the index from filtered_time2)
-        index_of_pk = np.argmin(filtered_values2)
+        index_of_pk = np.argmax(filtered_values2) #changed Jul8
         peak_loc = filtered_time2[index_of_pk]
 
         peak_amp = peak_val - baseline
