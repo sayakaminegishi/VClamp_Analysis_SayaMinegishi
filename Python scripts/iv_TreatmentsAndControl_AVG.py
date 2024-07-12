@@ -1,5 +1,6 @@
 '''
 CREATE IV CURVE FOR CONTROL AND TREATMENT FILE(S), takes AVERAGE for each Voltage, fits a CURVE, AND PLOTS THEM ON THE SAME AXES.
+FINDS ESTIMATED REVERSAL POTENTIAL FOR CONTROL AND TREATMENT GROUPS.
 
 This script processes ABF files.
 
@@ -115,11 +116,9 @@ def estimate_reversalVm(params):
     real_roots = [root for root in roots if np.isreal(root)] #filter out real roots
     real_roots = np.real(real_roots)
 
-    #sort real roots by their distance to V = 0
-    real_roots.sort(key = lambda x: abs(x-0)) #roots are sorted based on how close they are to 0 (i.e., their absolute distance from 0).
-    
-    #get the root that is closest to V = 0
-    closest_root = real_roots[0]
+  
+    # Find the root closest to V=0
+    closest_root = min(real_roots, key=lambda x: abs(x - 0))
 
     return closest_root #estimated reversal potential
  
@@ -264,7 +263,7 @@ plt.ylabel("Current (pA)")
 # labels.append('Number of points')  # Add label for the additional text
 
 # plt.legend(handles=handles, labels=labels)
-
+plt.legend()
 
 plt.tight_layout()
 
