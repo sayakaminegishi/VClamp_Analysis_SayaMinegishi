@@ -6,6 +6,8 @@ Created by: Sayaka (Saya) Minegishi, with some support from chatgpt.
 Contact: minegishis@brandeis.edu
 Last modified: July 4 2024
 
+
+TODO: make sure that dep period is defined correctly 
 '''
 import os
 import numpy as np
@@ -123,7 +125,7 @@ if startblock and endblock:
 filesnotworking = []
 
 # Initialize summary table for recording data
-columns = ['Filename', 'Peak_amplitude(pA)', 'Input_voltage_at_peak(mV)', 'AreaUnderCurve_peak(pA*mV)']
+columns = ['Filename', 'Peak_amplitude(pA)', 'current_at_peak(pA)','Input_voltage_at_peak(mV)', 'AreaUnderCurve_peak(pA*mV)']
 
 df = pd.DataFrame(columns=columns)
 
@@ -150,7 +152,7 @@ for file in sorted_file_paths:
         trace = np.array(abfdata.sweepY)
         inputv = np.array(abfdata.sweepC)
         SampleRate = abfdata.dataRate
-        #baseline = trace[0] #TODO: IMPROVE THIS TO TAKE AVG? 
+        #baseline = trace[0] 
 
         denoised_trace = low_pass_filter(trace, SampleRate)
 
@@ -192,6 +194,7 @@ for file in sorted_file_paths:
         peak_amp = peak_val - baseline
         areaundercurve_peak = np.trapz(filtered_values2, filtered_time2)
         vAtPeak = inputv2[index_of_pk]
+        currpeak = peak_val
 
         # Printing values for debugging
         print(f"Peak Value: {peak_val}")
@@ -206,6 +209,7 @@ for file in sorted_file_paths:
         new_row = {
             'Filename': file_shortname,
             'Peak_amplitude(pA)': peak_amp,
+            'current_at_peak(pA)': currpeak,
             'Input_voltage_at_peak(mV)': vAtPeak,
             'AreaUnderCurve_peak(pA*mV)': areaundercurve_peak,
         }

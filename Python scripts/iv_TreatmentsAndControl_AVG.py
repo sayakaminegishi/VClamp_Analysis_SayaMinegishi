@@ -1,17 +1,19 @@
 '''
-CREATE IV CURVE FOR CONTROL AND TREATMENT FILE(S) AND PLOTS THEM ON THE SAME AXES.
-Does not take average or fit a curve.
+CREATE IV CURVE FOR CONTROL AND TREATMENT FILE(S), takes AVERAGE for each Voltage, fits a CURVE, AND PLOTS THEM ON THE SAME AXES.
 
-This script processes ABF files to create an IV curve for each file
+This script processes ABF files.
 
 Note: Ensure all selected files use the SAME PROTOCOL TYPE.
 
+#TODO: make it make and take average of all IV curves from different cells and average them. use big for loop for each cell. 
+
+NOTES: interpolation is used for missing/unreadable data points, so the results may vary from reality for high voltages.
+
 Created by: Sayaka (Saya) Minegishi with some help from ChatGPT.
 Contact: minegishis@brandeis.edu
-Date: July 4, 2024
+Date: July 12, 2024
+
 '''
-
-
 import os
 import numpy as np
 import scipy.optimize
@@ -39,7 +41,7 @@ def showInstructions(messagetoshow):
     msg.setStandardButtons(QMessageBox.Ok)
     msg.exec_()
 
-
+#analyzes one file - gives one entry of voltage, current, conductance
 def IV_nolineofbestfit(filename, protocolname):
     # filename = path to file
     abf = pyabf.ABF(filename)
@@ -85,6 +87,48 @@ def IV_nolineofbestfit(filename, protocolname):
     }
     
     return iv_data
+
+# Function to average IV curves
+def average_iv_curve(iv_data_collection, common_voltages):
+    interpolated_currents = []
+
+    for iv_data in iv_data_collection:
+        voltages = np.array(iv_data['voltages'])
+        currents = np.array(iv_data['currents'])
+
+        # Interpolate currents to the common voltage points
+        interpolated_current = np.interp(common_voltages, voltages, currents)
+        interpolated_currents.append(interpolated_current)
+
+    # Average the interpolated currents
+    avg_currents = np.nanmean(interpolated_currents, axis=0)
+
+    return avg_currents
+
+
+#estimate the reversal potential based on fitted curve
+def estimate_reversalVm(params):
+    #params = array of coefficients
+    roots = np.roots(params) #find the roots of the polynomial (i.e. where I = 0)
+    
+    #print only real-number roots
+    real_roots = [root for root in roots if np.isreal(root)] #filter out real roots
+    real_roots = np.real(real_roots)
+
+    #sort real roots by their distance to V = 0
+    real_roots.sort(key = lambda x: abs(x-0)) #roots are sorted based on how close they are to 0 (i.e., their absolute distance from 0).
+    
+    #get the root that is closest to V = 0
+    closest_root = real_roots[0]
+
+    return closest_root #estimated reversal potential
+ 
+
+# Function to get the fitted equation as a string
+def get_polynomial_equation(params):
+    terms = ["{:.2e}x^{}".format(params[i], 3 - i) for i in range(len(params))] #params[i] are the coefficients of the polynomial
+    equation = " + ".join(terms)
+    return "I = " + equation
 
 ####################
 ##### FILE SELECTION
@@ -142,6 +186,8 @@ iv_data_collection_treat = [] #stores the dictionary containing IV properties fr
 filesnotworking = []
 
 ########### MAIN PROGRAM ###############
+n_control = len(sorted_file_paths_control) #number of control files
+n_treat = len(sorted_file_paths_treat) #number of treat files
 
 # Control files
 for file in sorted_file_paths_control:
@@ -161,26 +207,80 @@ for file in sorted_file_paths_treat:
         filesnotworking.append(file)
         logging.error(traceback.format_exc())  # log error
 
+
+# Define a common voltage range for interpolation
+common_voltages = np.linspace(-100, 100, 100)  # Adjust this range based on your protocol
+
+# Calculate the average IV curves
+avg_currents_control = average_iv_curve(iv_data_collection_control, common_voltages)
+avg_currents_treat = average_iv_curve(iv_data_collection_treat, common_voltages)
+
+################ CURVE FITTING ############
+#define a degree3 polynomial model function to fit our data to.
+def model_func(x, a, b, c, d):
+    return a * x**3 + b * x**2 + c * x + d
+
+# Fit the model to the averaged data
+params_control, _ = scipy.optimize.curve_fit(model_func, common_voltages, avg_currents_control)
+params_treat, _ = scipy.optimize.curve_fit(model_func, common_voltages, avg_currents_treat)
+
+# Generate fitted curves
+fitted_curve_control = model_func(common_voltages, *params_control) #* for argument unpacking. unpacks list to individual arguments.
+fitted_curve_treat = model_func(common_voltages, *params_treat)
+
+
+# Get the equations of the fitted curves
+equation_control = get_polynomial_equation(params_control)
+equation_treat = get_polynomial_equation(params_treat)
+
+print("Control IV Curve Equation:")
+print(equation_control)
+print("\nTreatment IV Curve Equation:")
+print(equation_treat)
+
+############### PLOTTING #############
+
 # Plot I/V curve
 plt.figure(figsize=(12, 6))
 
-# Control data plotting
-for iv_data in iv_data_collection_control:
-    plt.plot(iv_data["voltages"], iv_data["currents"], marker='o', linestyle='-', label='Control')
+# Plot averaged Control data
+plt.plot(common_voltages, avg_currents_control, 'o', label='Control Data')
+plt.plot(common_voltages, fitted_curve_control, '-', label='Control Fit')
 
-# Treatment data plotting
-for iv_data in iv_data_collection_treat:
-    plt.plot(iv_data["voltages"], iv_data["currents"], marker='x', linestyle='--', label='Treatment')
+# Plot averaged Treatment data
+plt.plot(common_voltages, avg_currents_treat, 'x', label='Treatment Data')
+plt.plot(common_voltages, fitted_curve_treat, '--', label='Treatment Fit')
 
-plt.title("I/V Relationship (Control vs. Treatment)")
+plt.title("Averaged and Fitted I/V Relationship (Control vs. Treatment)")
 plt.xlabel("Voltage (mV)")
 plt.ylabel("Current (pA)")
-plt.legend()
-plt.grid(alpha=0.5, linestyle='--')
+
+# # LEGEND - add no. of points  (no. of recordings from this cell)
+# additional_text = 'n_control={} \nn_treatment = {}'.format(str(n_control), str(n_treat))
+
+# # Create a legend with custom handles and labels
+# handles, labels = plt.gca().get_legend_handles_labels()
+# handles.append(additional_text)  # Add additional text as a handle
+# labels.append('Number of points')  # Add label for the additional text
+
+# plt.legend(handles=handles, labels=labels)
+
+
 plt.tight_layout()
 
 # Display the plot
 plt.show()
+
+########## REVERSAL POTENTIAL ESTIMATION ##################
+
+#reversal potential for control
+revVmControl = estimate_reversalVm(params_control)
+
+#estimate the reversal potential for treatment
+revVmTreatment = estimate_reversalVm(params_treat)
+
+print("The reversal potential of the control group is {} mV".format(str(revVmControl)))
+print("The reversal potential of the treatment group is {} mV".format(str(revVmTreatment)))
 
 # Show completion message as a dialog box
 msg = QMessageBox()
