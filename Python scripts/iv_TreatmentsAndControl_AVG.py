@@ -4,7 +4,7 @@ FINDS ESTIMATED REVERSAL POTENTIAL FOR CONTROL AND TREATMENT GROUPS.
 
 This script processes ABF files.
 
-Note: Ensure all selected files use the SAME PROTOCOL TYPE.
+Note: Ensure all selected files use the SAME PROTOCOL TYPE, and the SAME CELL.
 
 #TODO: make it make and take average of all IV curves from different cells and average them. use big for loop for each cell. 
 
@@ -24,14 +24,25 @@ import pyabf
 import pandas as pd
 import traceback
 import logging
-from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QMessageBox, QWidget
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QMessageBox, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel
 from getFilePath import get_file_path  # type: ignore
 from get_tail_times import getStartEndTail, getDepolarizationStartEnd, get_last_sweep_number
 from remove_abf_extension import remove_abf_extension  # type: ignore
 from getTailCurrentModel import getExpTailModel
 from getFilePath import get_only_filename
 from apply_low_pass_filter_FUNCTION import low_pass_filter
+import re
+from get_base_filename import get_base_filename
 
+#extract cell name from path directory (shown as a string)
+def extract_cellname(s):
+    #s = directory path
+    match = re.search(r"\b\d{4}_\d{2}_\d{2}_\d{2}\b", s)
+    if match:
+        return match.group(0)
+    else:
+        return None
+    
 
 def showInstructions(messagetoshow):
     # Show given message as a dialog box
@@ -207,6 +218,10 @@ for file in sorted_file_paths_treat:
         logging.error(traceback.format_exc())  # log error
 
 
+#GET CELL NAME
+f = sorted_file_paths_treat[0] #full directory path of 1st treatment file
+cell_name = get_cell_filename(f)
+
 # Define a common voltage range for interpolation
 common_voltages = np.linspace(-100, 100, 100)  # Adjust this range based on your protocol
 
@@ -250,7 +265,7 @@ plt.plot(common_voltages, fitted_curve_control, '-', label='Control Fit')
 plt.plot(common_voltages, avg_currents_treat, 'x', label='Treatment Data')
 plt.plot(common_voltages, fitted_curve_treat, '--', label='Treatment Fit')
 
-plt.title("Averaged and Fitted I/V Relationship (Control vs. Treatment)")
+plt.title("Averaged and Fitted I/V Relationship for {}".format(cell_name))
 plt.xlabel("Voltage (mV)")
 plt.ylabel("Current (pA)")
 
@@ -266,6 +281,11 @@ plt.ylabel("Current (pA)")
 plt.legend()
 
 plt.tight_layout()
+
+
+# Save the plot as a JPEG file
+imgname = 'iv_curve_{}.jpeg'.format(cell_name) #name of image file exported
+plt.savefig(imgname, format='jpeg')
 
 # Display the plot
 plt.show()

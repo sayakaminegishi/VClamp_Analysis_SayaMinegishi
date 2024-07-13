@@ -96,8 +96,10 @@ def getDepolarizationStartEnd(protocolname):
         enddep = 0.5969
 
     elif protocolname == "BradleyShort":
-        startdep = 0.0969
-        enddep = 0.1960
+        #startdep = 0.0969
+        startdep =0.0979
+        #enddep = 0.1960
+        enddep = 0.1959
    
 
     return startdep, enddep
