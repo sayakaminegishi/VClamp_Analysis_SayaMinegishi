@@ -41,6 +41,8 @@ for i in abfdata.sweepList:
     x = np.array(abfdata.sweepC)  #voltage values
     y = np.array(abfdata.sweepY)  # Current values
 
+    
+
     #design a mapping function to fit a line to the data - in this case a line
     def objective(x, a, b):
         return a*x + b

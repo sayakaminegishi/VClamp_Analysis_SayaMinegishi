@@ -8,7 +8,7 @@
 
     Created by: Sayaka (Saya) Minegishi
     Contact: minegishis@brandeis.edu
-    Last modified: Jun 19 2024
+    Last modified: Jul 13 2024
 '''
 
 def getStartEndTail(protocolname,i):
@@ -79,7 +79,9 @@ def get_last_sweep_number(protocolname):
     elif protocolname == "BradleyShort":
 
         lastsweep = 10
-    
+
+    elif protocolname == "Vramp":
+        lastsweep = 30
     
     return lastsweep
 

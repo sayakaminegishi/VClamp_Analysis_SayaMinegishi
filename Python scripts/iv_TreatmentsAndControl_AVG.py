@@ -7,6 +7,7 @@ This script processes ABF files.
 Note: Ensure all selected files use the SAME PROTOCOL TYPE, and the SAME CELL.
 
 #TODO: make it make and take average of all IV curves from different cells and average them. use big for loop for each cell. 
+#TODO: make it show filename and store img into output folder
 
 NOTES: interpolation is used for missing/unreadable data points, so the results may vary from reality for high voltages.
 
@@ -34,14 +35,6 @@ from apply_low_pass_filter_FUNCTION import low_pass_filter
 import re
 from get_base_filename import get_base_filename
 
-#extract cell name from path directory (shown as a string)
-def extract_cellname(s):
-    #s = directory path
-    match = re.search(r"\b\d{4}_\d{2}_\d{2}_\d{2}\b", s)
-    if match:
-        return match.group(0)
-    else:
-        return None
     
 
 def showInstructions(messagetoshow):
@@ -220,7 +213,7 @@ for file in sorted_file_paths_treat:
 
 #GET CELL NAME
 f = sorted_file_paths_treat[0] #full directory path of 1st treatment file
-cell_name = get_cell_filename(f)
+cell_name = get_base_filename(f)
 
 # Define a common voltage range for interpolation
 common_voltages = np.linspace(-100, 100, 100)  # Adjust this range based on your protocol
