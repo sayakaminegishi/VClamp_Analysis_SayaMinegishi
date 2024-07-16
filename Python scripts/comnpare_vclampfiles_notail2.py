@@ -1,6 +1,8 @@
 ''' COMPARES CURRENT PROPERTIES BETWEEN FILES, WITH A GIVEN SWEEP NUMBER AND PROTOCOL. NO TAIL CURRENT ANALYSIS (so compensated files).
 
 MAIN SCRIPT FOR ANALYZING CHANGES IN CHANNEL BEHAVIOR FOR ONE CELL, WITH MULTIPLE CONDITIONS (consecutive runs of protocol).
+USED FOR MEASURING EFFECT OF DRUG TREAMENT Vs CONTROL
+
 
 Created by: Sayaka (Saya) Minegishi, with some support from chatgpt.
 Contact: minegishis@brandeis.edu

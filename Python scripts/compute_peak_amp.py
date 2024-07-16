@@ -21,6 +21,7 @@ import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from get_tail_times import getStartEndTail
 from get_protocol_name import get_protocol_name # type: ignore
+import os
 
 
 # Function to apply low-pass filter
@@ -43,6 +44,7 @@ print(f"Selected files: {file_paths}")
 protocolname = str(input("Enter the protocol type - Henckels, BradleyLong or BradleyShort: "))
 
 # Define peak time
+k = 0 #since not Okada
 starttime, endtime = getStartEndTail(protocolname, k) #get tail start and end times
 
 
