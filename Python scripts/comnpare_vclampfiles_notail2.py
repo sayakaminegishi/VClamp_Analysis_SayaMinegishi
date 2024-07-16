@@ -6,7 +6,7 @@ USED FOR MEASURING EFFECT OF DRUG TREAMENT Vs CONTROL
 
 Created by: Sayaka (Saya) Minegishi, with some support from chatgpt.
 Contact: minegishis@brandeis.edu
-Last modified: July 4 2024
+Last modified: July 16 2024
 
 
 TODO: make sure that dep period is defined correctly 
@@ -83,7 +83,7 @@ if not ok:
     exit()
 
 # Ask for sweep number
-sweepn, ok = QInputDialog.getText(None, "Enter Sweep Number", "Enter the sweep number to analyze (zero-indexed), or enter 'final' for the last sweep:")
+sweepn, ok = QInputDialog.getText(None, "Enter Sweep Number", "Enter the sweep number to analyze, or enter 'final' for the last sweep:")
 
 if not ok:
     msg = QMessageBox()
@@ -96,7 +96,7 @@ if not ok:
 if sweepn == "final":
     sweepnumber = int(get_last_sweep_number(protocolname))
 else:
-    sweepnumber = int(sweepn)
+    sweepnumber = int(sweepn)-1
 
 #dd a dialogue box for user to specify _+ the last 4 digits of the files that marks blocker start and blocker end times
 # Ask the user for the last 4 digits of the start file
