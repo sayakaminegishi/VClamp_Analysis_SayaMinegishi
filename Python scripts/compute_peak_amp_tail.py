@@ -1,4 +1,4 @@
-''' PEAK CURRENT ANALYSIS - AUC and AMP
+''' PEAK TAIL CURRENT ANALYSIS - AUC and AMP 
 computes peak amplitude & area under curve for the greatest current step, for a specified protocol (with vsteps), and compares (gives avg) across multiple vclamp files.
 Can be used to get average peak current properties for one strain. Can be ran 2 times to compare differences between two strains.
 

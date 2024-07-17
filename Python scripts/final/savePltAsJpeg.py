@@ -1,13 +1,14 @@
 '''
-This function is used to save a plot as a jpeg file.
+THIS FUNCTION SAVES A GIVEN PLOT (plt) AS A JPEG FILE
 
 save_directory = full path to the directory to save the file
 imgname = image file name
 
+note: call this function before plt.show()
 
 Created by Sayaka (Saya) Minegishi
 minegishis@brandeis.edu
-Jul 15 2024
+Jul 17 2024
 '''
 
 import os
@@ -24,3 +25,18 @@ def savePltAsJpeg(save_directory, imgname, plt):
     plt.savefig(save_path, format = 'jpeg')
 
 
+#test code
+import matplotlib.pyplot as plt
+import numpy as np
+sd='/Users/sayakaminegishi/Documents/Birren Lab/CaCC project'
+imname='testplt'
+xpoints = np.array([1, 2, 6, 8])
+ypoints = np.array([3, 8, 1, 10])
+
+plt.plot(xpoints, ypoints)
+
+#savefig
+
+savePltAsJpeg(sd, imname, plt)
+
+plt.show()

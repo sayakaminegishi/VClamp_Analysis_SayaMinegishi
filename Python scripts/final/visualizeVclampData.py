@@ -1,9 +1,8 @@
 '''
 PROGRAM THAT PLOTS A VOLTAGE-CLAMP DATA FOR A GIVEN ABF FILE, FOR A SPECIFIED SWEEP
 
-#FIX: CURSOR NOT WORKING!!!
 
-Created by Sayaka (Saya) Minegishi
+Created by Sayaka (Saya) Minegishi with assistance from ChatGPT
 minegishis@brandeis.edu
 Jul 16 2024
 
