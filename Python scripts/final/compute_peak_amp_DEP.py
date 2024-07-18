@@ -2,6 +2,8 @@
 computes peak amplitude & area under curve for the greatest current step, for a specified protocol (with vsteps), and compares (gives avg) across multiple vclamp files.
 Can be used to get average peak current properties for one strain. Can be ran 2 times to compare differences between two strains.
 
+This script gives the PEAK, not necessarily the steady-state current.
+
 Works for Henckels & Bradley Protocols.
 
 Created by: Sayaka (Saya) Minegishi
@@ -21,6 +23,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from get_tail_times import getDepolarizationStartEnd
 from get_protocol_name import get_protocol_name # type: ignore
 import os
+from get_base_filename import get_base_filename
 
 
 # Function to apply low-pass filter
@@ -62,14 +65,16 @@ for file in file_paths:
         abfdata = pyabf.ABF(file)
         swp = len(abfdata.sweepList)-1 #analyze the last sweep
         abfdata.setSweep(swp)
-        
+        base_filename= get_base_filename(file) #get shortened filename
+
         # Visualize data
         plt.figure()
         plt.plot(abfdata.sweepX, abfdata.sweepY, color="orange")
         plt.xlabel('Time (s)')
         plt.ylabel('Current (pA)') 
-        plt.title('Original Data')
-        plt.legend() 
+        plt.title('Original Data for {}'.format(base_filename))
+        
+        
 
         # Extract sweep data and convert them to arrays
         time = np.array(abfdata.sweepX)
@@ -89,6 +94,16 @@ for file in file_paths:
         peak_val = np.max(filtered_values)  #peak current
         index_of_peak = np.argmax(filtered_values) 
         peak_loc = filtered_time[index_of_peak]  
+
+        ##FOR_DEBUGGING##
+        plt.plot(denoised_trace)
+        plt.axvline(x=filtered_time[0])
+        plt.axvline(x=filtered_time[len(filtered_time)-1])
+
+        plt.plot(peak_loc, peak_val, 'o') #show peak loc
+        plt.show()
+
+
 
         peakamp = peak_val - baseline
         areaundercurve_dep = np.trapz(filtered_values, filtered_time) #area under the curve
