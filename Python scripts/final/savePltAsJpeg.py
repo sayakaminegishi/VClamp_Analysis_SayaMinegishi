@@ -4,7 +4,7 @@ THIS FUNCTION SAVES A GIVEN PLOT (plt) AS A JPEG FILE
 save_directory = full path to the directory to save the file
 imgname = image file name
 
-note: call this function before plt.show()
+NOTE: call this function before plt.show()
 
 Created by Sayaka (Saya) Minegishi
 minegishis@brandeis.edu

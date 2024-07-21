@@ -23,19 +23,8 @@ import logging
 from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QMessageBox
 import os
 from get_base_filename import get_base_filename
-
-
-def getDepolarizationStartEnd(protocolname):
-    if protocolname == "Henckels":
-        startdep = 0.0811
-        enddep = 0.5811
-    elif protocolname == "BradleyLong":
-        startdep = 0.0962
-        enddep = 0.5969
-    elif protocolname == "BradleyShort":
-        startdep = 0.0969
-        enddep = 0.1960
-    return startdep, enddep
+from get_tail_times import getDepolarizationStartEnd, getZoomStartEndTimes
+from plotSweepsAndCommand import plotAllSweepsAndCommand
 
 
 # Function to apply low-pass filter
@@ -78,22 +67,20 @@ for file in file_paths:
     try:
         print("\nWorking on " + file)
         abfdata = pyabf.ABF(file)
+        base_filename = get_base_filename(file)  # get shortened filename
+        
+        # Plot data, with all sweeps
+        plotAllSweepsAndCommand(abfdata, save_directory, base_filename)
+
         swp = len(abfdata.sweepList) - 1  # analyze the last sweep
         swpfinal = swp
         abfdata.setSweep(swp)
-        base_filename = get_base_filename(file)  # get shortened filename
+        
 
         # Get start and end times of the depolarization
         startdep, enddep = getDepolarizationStartEnd(protocolname)
-
-        # Visualize data
-        plt.figure()
-        plt.plot(abfdata.sweepX, abfdata.sweepY, color="orange")
-        plt.xlabel('Time (s)')
-        plt.ylabel('Current (pA)')
-        plt.title(f'Original Data for {base_filename}')
-        plt.show()
-
+        startshow, endshow = getZoomStartEndTimes(protocolname)
+    
         # Extract sweep data and convert them to arrays
         time = np.array(abfdata.sweepX)
         trace = np.array(abfdata.sweepY)  # Current values
@@ -113,12 +100,23 @@ for file in file_paths:
         index_of_peak = np.argmax(filtered_values)
         peak_loc = filtered_time[index_of_peak]
 
-        ## FOR_DEBUGGING ##
+        ## Plot peak pt and pulse times
         plt.figure()
+     
         plt.plot(time, denoised_trace)
         plt.axvline(x=startdep, color="green", linestyle='--')
         plt.axvline(x=enddep, color="green", linestyle='--')
         plt.plot(peak_loc, peak_val, 'o')  # show peak loc
+        plt.xlabel(abfdata.sweepLabelX)
+        plt.ylabel(abfdata.sweepLabelC)
+        
+        # Add text labels to the vertical lines: y-position of the text is calculated to be vertically centered on the plot
+        plt.text(startdep, min(denoised_trace) + (max(denoised_trace) - min(denoised_trace)) * 0.5, 'Start', rotation=90, verticalalignment='center', color='green')
+        plt.text(enddep, min(denoised_trace) + (max(denoised_trace) - min(denoised_trace)) * 0.5, 'End', rotation=90, verticalalignment='center', color='green')
+
+        plt.title("Maximum current Induced")
+
+        plt.xlim(startshow, endshow) #PLOT ONLY THE REGION BETWEN STARTSHOW AND ENDSHOW
         plt.show()
 
         peakamp = peak_val - baseline

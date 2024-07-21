@@ -99,7 +99,8 @@ def getDepolarizationStartEnd(protocolname):
 
     elif protocolname == "BradleyShort":
         #TODO: EDIT?
-        startdep = 0.0969
+        #startdep = 0.0969
+        startdep = 0.1
         
         enddep = 0.1960
         # enddepInitial = 0.1971
@@ -112,6 +113,20 @@ def getDepolarizationStartEnd(protocolname):
    
 
     return startdep, enddep
+
+
+#get start and end times for showing zoomed-up graph
+def getZoomStartEndTimes(protocolname):
+    if protocolname == "BradleyShort":
+        startshow = 0.0772 #start time for showing zoomed-up trace
+        endshow = 0.2768 #end time for showing trace
+
+    else: #assuming BradleyLong
+        startshow = 0.0656
+        endshow = 0.7
+
+    return startshow, endshow
+
 
 
 
