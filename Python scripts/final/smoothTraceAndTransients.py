@@ -85,6 +85,7 @@ for file in file_paths:
         SampleRate = abfdata.dataRate  # Sample rate in total samples per second per channel
 
         # Denoise trace and remove transients
+       
         denoised_trace = process_trace(trace, SampleRate, startdep, enddep, cutoff=300, order=5)
 
         # Plot the original and filtered signals

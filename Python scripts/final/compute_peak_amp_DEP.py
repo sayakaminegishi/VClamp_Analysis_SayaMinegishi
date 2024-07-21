@@ -82,6 +82,7 @@ for file in file_paths:
         baseline = trace[0]
 
         #denoise trace and remove transients
+        #denoised_trace = lowpass_filter...
         denoised_trace= process_trace(trace, SampleRate, startdep, enddep, cutoff=300, order=5)
 
         # Get peak amplitude within the depolarization interval
