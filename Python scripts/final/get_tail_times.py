@@ -101,7 +101,7 @@ def getDepolarizationStartEnd(protocolname):
         #startdep = 0.0969
         startdep = 0.1
         
-        enddep = 0.1960
+        enddep = 0.1957
         # enddepInitial = 0.1971
         # startdepInitial =0.0981
 

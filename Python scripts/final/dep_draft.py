@@ -25,27 +25,7 @@ import os
 from get_base_filename import get_base_filename
 from get_tail_times import getDepolarizationStartEnd, getZoomStartEndTimes
 from plotSweepsAndCommand import plotAllSweepsAndCommand
-
-def low_pass_filter(trace, SampleRate):
-    cutoff=300
-    order=5
-    nyquist = 0.5 * SampleRate
-    normal_cutoff = cutoff / nyquist
-    b, a = scipy.signal.butter(order, normal_cutoff, btype='low', analog=False)
-    filtered_trace = scipy.signal.filtfilt(b, a, trace)
-    return filtered_trace
-
-# Smooth the peaks at the start and end of depolarization and exclude them from analysis
-def smooth_edges(trace, dep_time_seconds, SampleRate):
-    dep_length = int(dep_time_seconds * SampleRate)  # Depolarization duration from seconds to indices
-    smoothedTrace = np.copy(trace)  # Make a duplicate of the original trace
-
-    # Smooth the beginning uncompensated transient
-    smoothedTrace[:dep_length] = np.linspace(trace[0], trace[dep_length], dep_length)
-    # Smooth the end edge
-    smoothedTrace[-dep_length:] = np.linspace(trace[-dep_length], trace[-1], dep_length)
-    return smoothedTrace
-
+from smoothTraceAndTransients import low_pass_filter, smooth_edges, process_trace
 
 
 ######### Ask user input (automatic - no need to change any code here) #########
@@ -93,7 +73,6 @@ for file in file_paths:
         # Get start and end times of the depolarization
         startdep, enddep = getDepolarizationStartEnd(protocolname)
         startshow, endshow = getZoomStartEndTimes(protocolname)
-        deptime_seconds = enddep - startdep
     
         # Extract sweep data and convert them to arrays
         time = np.array(abfdata.sweepX)
@@ -103,9 +82,7 @@ for file in file_paths:
         baseline = trace[0]
 
         #denoise trace and remove transients
-    
-        filtered = low_pass_filter(trace, SampleRate)
-        denoised_trace = smooth_edges(filtered, deptime_seconds, SampleRate)
+        denoised_trace = low_pass_filter(trace, SampleRate, cutoff=300, order=5)
         #denoised_trace= process_trace(trace, SampleRate, startdep, enddep, cutoff=300, order=5)
 
         # Get peak amplitude within the depolarization interval
@@ -171,7 +148,3 @@ with pd.ExcelWriter(summary_excelname, engine='xlsxwriter') as writer:
 # Show files not working
 string = ','.join(str(x) for x in filesnotworking)
 print("Files not working:" + string)
-
-
-app.exit()
-
