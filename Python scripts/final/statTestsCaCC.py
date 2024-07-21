@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import glob
 
 
-#function to conduct a t test comparing 
+#function to conduct a t test comparing shrdf with wkydf
 def conductTtest(shrdf, wkydf, propertyName):
     #shrdf = shr data in dataframe, from compute_peak_amp_DEP.py
     #wkydf = same concept

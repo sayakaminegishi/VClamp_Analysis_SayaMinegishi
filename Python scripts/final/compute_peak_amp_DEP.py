@@ -162,7 +162,7 @@ print(f"Mean Input_voltage(mV): {mean_b}")
 print(f"Mean area under curve(pA*mV): {mean_c}")
 
 # Construct the file name for excel export
-summary_excelname = os.path.join(save_directory, f"PeakAmplitudes_{protocolname}_sweep{swpfinal}.xlsx")
+summary_excelname = os.path.join(save_directory, f"PeakAmplitudes_{base_filename}_sweep{swpfinal}.xlsx")
 
 # Use ExcelWriter to save the DataFrame to an Excel file
 with pd.ExcelWriter(summary_excelname, engine='xlsxwriter') as writer:
