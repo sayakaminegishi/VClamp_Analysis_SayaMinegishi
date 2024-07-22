@@ -1,13 +1,5 @@
-''' CONCATENATES SELECTED EXCEL TABLES (FILES) VERTICALLY
-concatenates excel tables of the same format. store all excel sheets that you want to concatenate 
-vertically in a single folder (path).
+'''draft'''
 
-TODO: fix concatenate_excelTablseFromPath function to match format of the other one!
-
-Created by Sayaka (Saya) Minegishi with assistance from ChatGPT
-Contact: minegishis@brandeis.edu
-Last modified Jul 22 2024
-'''
 import pandas as pd
 import glob
 import numpy as np
@@ -24,42 +16,6 @@ from get_tail_times import getDepolarizationStartEnd, getZoomStartEndTimes
 from plotSweepsAndCommand import plotAllSweepsAndCommand
 from showInstructions import showInstructions
 
-
-def concatenate_excelTablesFromPath(path):
-    # path = the path to the Excel files
-    filesnotworking = []
-
-
-    # Get a list of all Excel files in the directory
-    excel_files = glob.glob(path + '*.xlsx')
-
-    # Initialize an empty list to hold DataFrames
-    dataframes = []
-
-    # Loop through each file and read it into a DataFrame
-    for file in excel_files:
-        try:
-            df = pd.read_excel(file)
-            dataframes.append(df)
-
-        except Exception as e:
-            filesnotworking.append(file)
-            logging.error(traceback.format_exc())  # log error
-
-
-    # Concatenate all DataFrames into a single DataFrame
-    combined_df = pd.concat(dataframes, ignore_index=True)
-    
-
-    # Save the combined DataFrame to a new Excel file 
-    combined_df.to_excel('{path}combined_file.xlsx', index=False) #this can be read by statTestsCaCC.py
-    # Show files not working
-    string = ','.join(str(x) for x in filesnotworking)
-    print("Files not working:" + string)
-
-    return combined_df #all the exeel tables concatenated into a single table
-
-#function that takes in an array of excel files
 
 def concatenate_excelTables(excel_files, save_path):
     files_not_working = []

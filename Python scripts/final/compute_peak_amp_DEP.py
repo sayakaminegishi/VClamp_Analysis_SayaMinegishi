@@ -25,6 +25,7 @@ import os
 from get_base_filename import get_base_filename
 from get_tail_times import getDepolarizationStartEnd, getZoomStartEndTimes
 from plotSweepsAndCommand import plotAllSweepsAndCommand
+from showInstructions import showInstructions
 
 def low_pass_filter(trace, SampleRate):
     cutoff=300
@@ -51,6 +52,7 @@ def smooth_edges(trace, dep_time_seconds, SampleRate):
 ######### Ask user input (automatic - no need to change any code here) #########
 app = QApplication([])
 options = QFileDialog.Options()
+showInstructions("Select files.")
 file_paths, _ = QFileDialog.getOpenFileNames(None, "Select files", "", "ABF Files (*.abf);;All Files (*)", options=options)
 
 print(f"Selected files: {file_paths}")
@@ -72,6 +74,8 @@ filesnotworking = []
 # Initialize summary table for recording data
 columns = ['Filename', 'Peak_amplitude(pA)', 'Input_voltage(mV)', 'AreaUnderCurve(pA*mV)']
 df = pd.DataFrame(columns=columns)
+
+showInstructions("Select directory to save the concatenated table.")
 save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel Files", options=options)
 
 

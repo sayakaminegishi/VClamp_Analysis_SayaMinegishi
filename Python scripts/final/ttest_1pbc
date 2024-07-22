@@ -29,7 +29,7 @@ app = QApplication([])
 showInstructions("Select control files for Strain 1")
 options = QFileDialog.Options()
 
-file_paths, _ = QFileDialog.getOpenFileNames(None, "Select control excel files for Strain 1", "", "ABF Files (*.abf);;All Files (*)", options=options)
+file_paths, _ = QFileDialog.getOpenFileNames(None, "Select control excel files for Strain 1", "", "xlsx Files (*.xlsx);;All Files (*)", options=options)
 
 if not file_paths:
     msg = QMessageBox()
@@ -47,7 +47,7 @@ df_wkyControl = concatenate_excelTables(file_paths)
 showInstructions("Select treatment (1PBC) files for Strain 1")
 options = QFileDialog.Options()
 
-file_pathsT1, _ = QFileDialog.getOpenFileNames(None, "Select treatment excel files for Strain 1", "", "ABF Files (*.abf);;All Files (*)", options=options)
+file_pathsT1, _ = QFileDialog.getOpenFileNames(None, "Select treatment excel files for Strain 1", "", "xlsx Files (*.xlsx);;All Files (*)", options=options)
 
 if not file_pathsT1:
     msg = QMessageBox()
@@ -66,7 +66,7 @@ df_wky1PBC = concatenate_excelTables(file_pathsT1)
 showInstructions("Select control files for Strain 2")
 options = QFileDialog.Options()
 
-file_pathsC2, _ = QFileDialog.getOpenFileNames(None, "Select control excel files for Strain 2", "", "ABF Files (*.abf);;All Files (*)", options=options)
+file_pathsC2, _ = QFileDialog.getOpenFileNames(None, "Select control excel files for Strain 2", "", "xlsx Files (*.xlsx);;All Files (*)", options=options)
 
 if not file_paths:
     msg = QMessageBox()
@@ -85,7 +85,7 @@ df_shrControl = concatenate_excelTables(file_pathsC2)
 showInstructions("Select treatment (1PBC) files for Strain 2")
 options = QFileDialog.Options()
 
-file_pathsT2, _ = QFileDialog.getOpenFileNames(None, "Select treatment excel files for Strain 2", "", "ABF Files (*.abf);;All Files (*)", options=options)
+file_pathsT2, _ = QFileDialog.getOpenFileNames(None, "Select treatment excel files for Strain 2", "", "xlsx Files (*.xlsx);;All Files (*)", options=options)
 
 if not file_pathsT2:
     msg = QMessageBox()
