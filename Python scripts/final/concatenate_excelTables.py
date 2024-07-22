@@ -95,7 +95,7 @@ def concatenate_excelTables(excel_files, save_path):
         return None
 
 
-########### example ###################
+########### Usage for one set of excel files (i.e. concatenates to make 1 file) ###################
 
 # Give instructions
 app = QApplication([])

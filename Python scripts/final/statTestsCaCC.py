@@ -12,13 +12,27 @@ contact: minegishis@brandeis.edu
 Last Modified: Jul 21 2024
 
 '''
-
 from scipy import stats
 import pandas as pd
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import glob
+import numpy as np
+import scipy.optimize
+import scipy.signal
+import matplotlib.pyplot as plt
+import pyabf
+import traceback
+import logging
+from PyQt5.QtWidgets import QApplication, QFileDialog, QInputDialog, QMessageBox
+import os
+from get_base_filename import get_base_filename
+from get_tail_times import getDepolarizationStartEnd, getZoomStartEndTimes
+from plotSweepsAndCommand import plotAllSweepsAndCommand
+from showInstructions import showInstructions
+from concatenate_excelTables import concatenate_excelTables
+from statTestsCaCC import conductTtest
+
 
 
 #function to conduct a t test comparing shrdf with wkydf
@@ -96,11 +110,23 @@ def getMeansAndSE(shrdf, wkydf, propertyName):
     return shr_avg, wky_avg, ses
 
 
-###############
-# EXAMPLE USAGE
-exceldocSHR = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/FOR ANALYSIS/1PBC treatment/SHR cells/SHRN_DIV5_1pbc_7_3/control 7_3_02/PeakAmplitudes_BradleyShort_sweep10.xlsx"
-exceldocWKY = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/FOR ANALYSIS/1PBC treatment/WKY cells/07_10_02_WKYDIV13_1pbc/1pbc 07_10_02/PeakAmplitudes_BradleyShort_sweep10.xlsx"
-propertyName = 'Peak_amplitude(pA)' #example
+############### USAGE EXAMPLE #######################
+
+# exceldocSHR = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/FOR ANALYSIS/1PBC treatment/SHR cells/SHRN_DIV5_1pbc_7_3/control 7_3_02/PeakAmplitudes_BradleyShort_sweep10.xlsx"
+# exceldocWKY = "/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/FOR ANALYSIS/1PBC treatment/WKY cells/07_10_02_WKYDIV13_1pbc/1pbc 07_10_02/PeakAmplitudes_BradleyShort_sweep10.xlsx"
+# propertyName = 'Peak_amplitude(pA)' #example
+
+# Give instructions
+app = QApplication([])
+
+showInstructions("Select Excel files to concatenate vertically")
+options = QFileDialog.Options()
+file_paths, _ = QFileDialog.getOpenFileNames(None, "Select Excel files to concatenate vertically", "", "Excel Files (*.xlsx);;All Files (*)", options=options)
+
+print(f"Selected files: {file_paths}")
+
+showInstructions("Select directory to save the concatenated table.")
+save_directory = QFileDialog.getExistingDirectory(None, "Select Directory to Save Excel File", options=options)
 
 shrdf = pd.read_excel(exceldocSHR)
 wkydf = pd.read_excel(exceldocWKY)
