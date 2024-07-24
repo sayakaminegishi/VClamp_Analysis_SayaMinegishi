@@ -54,10 +54,10 @@ if not file_pathsC:
 
 print(f"Selected file: {file_pathsC}")
 
-controlDf = pd.read_excel(file_pathsC)
+controlDf = pd.read_excel(file_pathsC) #convert excel data to a dataframe (pandas)
 
 # Select treatment files
-showInstructions("Select treatment (1PBC) files for the same strain")
+showInstructions("Select treatment files for the same strain")
 options = QFileDialog.Options()
 
 file_pathsT2, _ = QFileDialog.getOpenFileNames(None, "Select treatment excel files", "", "xlsx Files (*.xlsx);;All Files (*)", options=options)
