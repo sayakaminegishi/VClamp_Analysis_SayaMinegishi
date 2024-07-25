@@ -1,3 +1,6 @@
+'''CALCULATES PEAK AMPLITUDE DURING DEPOLARIZATION AND STORES IT AS AN EXCEL TABLE,
+WHICH CAN THEN BE CONCATENATED FOR ANALYSIS'''
+
 import numpy as np
 import scipy.signal
 import matplotlib.pyplot as plt
