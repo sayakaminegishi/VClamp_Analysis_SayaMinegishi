@@ -150,8 +150,15 @@ print("Estimated Reversal Potential: {:.2f} mV".format(reversal_potential))
 # Plot I/V curve
 plt.figure(figsize=(12, 6))
 plt.plot(avg_voltages, avg_currents, 'o', label='Averaged Data')
+plt.axhline(0, color='black', linestyle='-')
+# plt.axvline(0, color='black', linestyle='-', label = "y=0")
+
+
+# plt.plot(reversal_potential, color = 'red', marker = '*', label='Estimated reversal potential')
 plt.axhline(0, color='gray', linestyle='--')
 plt.axvline(reversal_potential, color='red', linestyle='--', label='Estimated Reversal Potential')
+
+
 plt.title("Averaged I/V Relationship for {}".format(get_base_filename(filepath)))
 plt.xlabel("Voltage (mV)")
 plt.ylabel("Current (pA)")

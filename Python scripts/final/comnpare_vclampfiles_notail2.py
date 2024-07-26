@@ -29,6 +29,7 @@ from getFilePath import get_only_filename
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
 import re
+from removeOutliers2 import removeOutliersNormalized
 
 ######### Define necessary functions
 def showInstructions(messagetoshow):
@@ -163,8 +164,8 @@ for file in sorted_file_paths:
         #baseline = trace[0] 
 
         denoised_trace = low_pass_filter(trace, SampleRate)
-
         
+    
         # Get peak current amplitude during depolarization step
         starttime, endtime = getDepolarizationStartEnd(protocolname)
 
