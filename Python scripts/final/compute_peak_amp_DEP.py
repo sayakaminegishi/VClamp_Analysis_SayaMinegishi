@@ -86,8 +86,8 @@ for file in file_paths:
         abfdata = pyabf.ABF(file)
         base_filename = get_base_filename(file)  # get shortened filename
         
-        # Plot data, with all sweeps
-        plotAllSweepsAndCommand(abfdata, base_filename, save_directory)
+        # UNCOMMENT BELOW TO Plot data, with all sweeps
+        #plotAllSweepsAndCommand(abfdata, base_filename, save_directory)
 
         swp = len(abfdata.sweepList) - 1  # analyze the last sweep
         swpfinal = swp
@@ -121,24 +121,24 @@ for file in file_paths:
         index_of_peak = np.argmax(filtered_values)
         peak_loc = filtered_time[index_of_peak]
 
-        ## Plot peak pt and pulse times
-        plt.figure()
+        # ## UNCOMMENT BELOW TO Plot peak pt and pulse times
+        # plt.figure()
      
-        plt.plot(time, denoised_trace)
-        plt.axvline(x=startdep, color="green", linestyle='--')
-        plt.axvline(x=enddep, color="green", linestyle='--')
-        plt.plot(peak_loc, peak_val, 'o')  # show peak loc
-        plt.xlabel(abfdata.sweepLabelX)
-        plt.ylabel(abfdata.sweepLabelC)
+        # plt.plot(time, denoised_trace)
+        # plt.axvline(x=startdep, color="green", linestyle='--')
+        # plt.axvline(x=enddep, color="green", linestyle='--')
+        # plt.plot(peak_loc, peak_val, 'o')  # show peak loc
+        # plt.xlabel(abfdata.sweepLabelX)
+        # plt.ylabel(abfdata.sweepLabelC)
         
-        # Add text labels to the vertical lines: y-position of the text is calculated to be vertically centered on the plot
-        plt.text(startdep, min(denoised_trace) + (max(denoised_trace) - min(denoised_trace)) * 0.5, 'Start', rotation=90, verticalalignment='center', color='green')
-        plt.text(enddep, min(denoised_trace) + (max(denoised_trace) - min(denoised_trace)) * 0.5, 'End', rotation=90, verticalalignment='center', color='green')
+        # # Add text labels to the vertical lines: y-position of the text is calculated to be vertically centered on the plot
+        # plt.text(startdep, min(denoised_trace) + (max(denoised_trace) - min(denoised_trace)) * 0.5, 'Start', rotation=90, verticalalignment='center', color='green')
+        # plt.text(enddep, min(denoised_trace) + (max(denoised_trace) - min(denoised_trace)) * 0.5, 'End', rotation=90, verticalalignment='center', color='green')
 
-        plt.title("Maximum current Induced")
+        # plt.title("Maximum current Induced")
 
-        plt.xlim(startshow, endshow) #PLOT ONLY THE REGION BETWEN STARTSHOW AND ENDSHOW
-        plt.show()
+        # plt.xlim(startshow, endshow) #PLOT ONLY THE REGION BETWEN STARTSHOW AND ENDSHOW
+        # plt.show()
 
         peakamp = peak_val - baseline
         areaundercurve_dep = np.trapz(filtered_values, filtered_time)  # area under the curve

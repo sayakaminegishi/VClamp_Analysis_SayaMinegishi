@@ -28,7 +28,6 @@ from getTailCurrentModel import getExpTailModel
 from getFilePath import get_only_filename
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog
-import re
 
 ######### Define necessary functions
 def showInstructions(messagetoshow):
@@ -204,8 +203,6 @@ for file in sorted_file_paths:
         vAtPeak = inputv2[index_of_pk]
         currpeak = peak_val
 
-        
-
         # Printing values for debugging
         print(f"Peak Value: {peak_val}")
         print(f"Peak Location: {peak_loc}")
@@ -278,8 +275,7 @@ plt.tight_layout()
 # Display the plot
 plt.show()
 
-print("start_drug = " + startblock)
-print("end_drug = " + endblock)
+
 
 
 

@@ -9,7 +9,8 @@ Contact: minegishis@brandeis.edu
 Last modified: July 16 2024
 
 
-TODO: make sure that dep period is defined correctly 
+TODO: make sure that dep period is defined correctly.
+TODO: REPLACE TIME AXIS WITH CONTINUOUS TIME VALUES NOT FILE NUMBERS. use create_timestamp_array functions
 '''
 import os
 import numpy as np
@@ -142,7 +143,7 @@ file_names_list = []
 for file in sorted_file_paths:
     try:
         #find the timestamp for recording
-        
+
 
 
 

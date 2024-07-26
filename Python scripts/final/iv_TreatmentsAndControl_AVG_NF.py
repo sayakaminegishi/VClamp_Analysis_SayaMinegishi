@@ -298,17 +298,18 @@ print("Estimated reversal potential (Treatment - Peak Current): {:.2f} mV".forma
 fig, ax = plt.subplots() 
 
 ax.plot(common_voltages, avg_currents_control_ss, '-',color='orange', label = "Control - Steady State")
-ax.plot(common_voltages, avg_currents_treat_ss, '--', color = '#ff9966', label = "Treatment - Steady State") #replace Treatment with name of drug (1PBC)
+ax.plot(common_voltages, avg_currents_treat_ss, '--', color = 'green', label = "Treatment - Steady State") #replace Treatment with name of drug (1PBC)
 
-ax.plot(common_voltages, avg_currents_control_pk, '-', color = 'green', label = "Control - Peak Current") #replace Treatment with name of drug (1PBC)
-ax.plot(common_voltages, avg_currents_treat_pk, '--', color = '#5cd65c', label = "Treatment - Peak Current") #replace Treatment with name of drug (1PBC)
+#uncomment below to plot IVs based on max peak
+# ax.plot(common_voltages, avg_currents_control_pk, '-', color = 'green', label = "Control - Peak Current") #replace Treatment with name of drug (1PBC)
+# ax.plot(common_voltages, avg_currents_treat_pk, '--', color = '#5cd65c', label = "Treatment - Peak Current") #replace Treatment with name of drug (1PBC)
 
 
 # Mark reversal potentials
-ax.axvline(rev_potential_control_ss, color='orange', linestyle=':', label='Reversal Potential (Control - SS)')
-ax.axvline(rev_potential_treat_ss, color='#ff9966', linestyle=':', label='Reversal Potential (Treatment - SS)')
-ax.axvline(rev_potential_control_pk, color='green', linestyle=':', label='Reversal Potential (Control - PK)')
-ax.axvline(rev_potential_treat_pk, color='#5cd65c', linestyle=':', label='Reversal Potential (Treatment - PK)')
+ax.axvline(rev_potential_control_ss, color='purple', linestyle=':', label='Reversal Potential (Control - SS)')
+ax.axvline(rev_potential_treat_ss, color='cyan', linestyle=':', label='Reversal Potential (Treatment - SS)')
+# ax.axvline(rev_potential_control_pk, color='green', linestyle=':', label='Reversal Potential (Control - PK)')
+# ax.axvline(rev_potential_treat_pk, color='#5cd65c', linestyle=':', label='Reversal Potential (Treatment - PK)')
 
 
 ax.set_xlabel('Voltage (mV)')

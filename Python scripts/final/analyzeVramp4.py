@@ -3,9 +3,8 @@
 This program fits a degree 3 polynomial curve to a series of Vramp recordings from a single abf file,
 and estimates the reversal potential of a current from a given ramp based on the fitted curve.
 
-#TODO: give error if invalid sweep number
 
-# Created by Sayaka (Saya) Minegishi with assistance from ChatGPT
+# Created by Sayaka (Saya) Minegishi with some assistance from ChatGPT
 # Contact: minegishis@brandeis.edu
 # Last modified: July 13 2024
 '''
@@ -28,6 +27,8 @@ from getFilePath import get_only_filename
 from apply_low_pass_filter_FUNCTION import low_pass_filter
 import re
 from get_base_filename import get_base_filename
+
+
 def showInstructions(messagetoshow):
     # Show given message as a dialog box
     msg = QMessageBox()
@@ -99,7 +100,7 @@ if not ok:
 if sweepn == "all":
     # Assuming sweepn is the string returned by get_last_sweep_number(protocolname)
     sweepn_last = get_last_sweep_number(protocolname)
-    sweepnum_array_final = [i - 1 for i in range(1, sweepn_last + 1)]
+    sweepnum_array_final = [i - 1 for i in range(1, sweepn_last+1)]
 
 elif(sweepn.find(":")!=-1):
     #string contains ":"
@@ -140,10 +141,13 @@ cell_name = get_base_filename(filepath)
 all_voltages = []
 all_currents = []
 
-# Iterate over all sweeps, average out ramp from each sweep into one
+# Iterate over all sweeps, average out ramp from each sweep into one - gives error if invalid sweep number
 for i in sweepnum_array_final:
-    swp = i
-    abfdata.setSweep(swp)
+    try:
+        abfdata.setSweep(i)
+    except ValueError:
+        print(f"Sweep {i + 1} is invalid. Skipping this sweep.")
+        continue
 
     # Extract sweep data and convert them to arrays
     time = np.array(abfdata.sweepX)
