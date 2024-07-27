@@ -1,5 +1,9 @@
 '''Analyze Vramp 5 - THE CLOSEST PT METHOD
 the reversal potential is interpolated from the values closest to I = 0
+
+Created by Sayaka (Saya) Minegishi
+minegishis@brandeis.edu
+Last modified: Jul 26 2024
 '''
 
 import os
