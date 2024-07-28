@@ -44,3 +44,9 @@ def plotAllSweepsAndCommand(abf, base_filename, save_directory):
 
     # Show the plot
     plt.show()
+
+
+
+
+# file = '/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/DATA_Ephys/FOR ANALYSIS/1PBC experiments/SHR cells/datashr/SHRN_DIV5_1pbc_7_3/all2024_07_03_01_0002.abf'
+# plotAllSweepsAndCommand(file, 2024_07_03_01_0002, save_directory):
