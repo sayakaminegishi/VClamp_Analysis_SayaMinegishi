@@ -1,12 +1,14 @@
 # VClamp_Analysis_SayaMinegishi
-Original matlab scripts for automatic analysis of voltage clamp traces.
+Original matlab and python scripts for automatic analysis of voltage clamp traces.
 
 Created by Sayaka (Saya) Minegishi
 minegishis@brandeis.edu
 
-## Description of each script
+## Description of each Python script
+navigate to 'final' folder under python scripts. header shows description.
+## Description of each Matlab script
 
-From Matlab Scripts folder:
+From Scripts folder, 
 
 **"how_to_use.m"** - example script that demonstrates how to use my scripts.
 
