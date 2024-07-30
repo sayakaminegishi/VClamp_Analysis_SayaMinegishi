@@ -1,8 +1,30 @@
 '''TWO-WAY ANOVA for  1PBC
-developed with assistance of ChatGPT '''
+Sayaka (Saya) Minegishi
+developed with assistance of ChatGPT 
+
+*****
+the two independent variables:
+Group1: treatment type - 1PBC, Control, washout
+Group 2: strain - wky or shr
+measurement: mean peak amplitude
+
+
+Null Hypotheses:
+1. there is no difference in the mean of peak amplitude due to the treatment type
+2. There is no difference int he mean of the peak amplitude due to the strain type
+3. There is no interaction effect between the treatment type and the strain type
+
+
+Assumptions: normality and equal SD <- probably not filled so use Krusal-wallis test
+
+
+'''
+
+
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 
 # Path to the Excel file
@@ -33,24 +55,24 @@ df_WKY = df_WKY.reindex(columns=all_columns)
 df_SHR = df_SHR.fillna(pd.NA)
 df_WKY = df_WKY.fillna(pd.NA)
 
-# Combine the DataFrames into a single DataFrame
-df_SHR = pd.melt(df_SHR.reset_index(), id_vars=['index'], value_vars=['CONTROL', 'TREAT', 'WASH'], var_name='Group', value_name='Measurement')
+# Combine the DataFrames into a single DataFrame suitable for ANOVA
+df_SHR = pd.melt(df_SHR.reset_index(), id_vars=['index'], value_vars=['CONTROL', 'TREAT', 'WASH'], var_name='treatment', value_name='Peak_amplitude')
 df_SHR['Strain'] = 'SHR'
 
-df_WKY = pd.melt(df_WKY.reset_index(), id_vars=['index'], value_vars=['control', 'treat', 'wash'], var_name='Group', value_name='Measurement')
+df_WKY = pd.melt(df_WKY.reset_index(), id_vars=['index'], value_vars=['control', 'treat', 'wash'], var_name='treatment', value_name='Peak_amplitude')
 df_WKY['Strain'] = 'WKY'
 
 # Combine both DataFrames
 df_combined = pd.concat([df_SHR, df_WKY], ignore_index=True)
 
 # Rename columns for consistency
-df_combined.columns = ['Index', 'Group', 'Measurement', 'Strain']
+df_combined.columns = ['Index', 'treatment', 'Peak_amplitude', 'Strain']
 
 # Print the combined DataFrame
 print(df_combined.head())
 
 ############## TWO-WAY ANOVA: IS THERE A DIFFERENCE IN MEAN AMPLITUDE (THE MEASUREMENT) BETWEEN STRAINS, ACROSS TREATMENT GROUPS ############
-model = ols('Measurement ~ C(Group) * C(Strain)', data=df_combined).fit()
+model = ols('Peak_amplitude ~ C(treatment) * C(Strain)', data=df_combined).fit()
 anova_table = sm.stats.anova_lm(model, typ=2)
 
 print(anova_table)
@@ -65,15 +87,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Boxplot to visualize the data
-sns.boxplot(x='Group', y='Measurement', hue='Strain', data=df_combined)
-plt.title('Boxplot of Measurements by Group and Strain')
+sns.boxplot(x='treatment', y='Peak_amplitude', hue='Strain', data=df_combined)
+plt.title('Boxplot of Peak_amplitudes by treatment type and Strain')
 plt.show()
 
-from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
 
 # Perform Tukey's HSD test
-tukey = pairwise_tukeyhsd(endog=df_combined['Measurement'], 
-                          groups=df_combined['Group'] + '-' + df_combined['Strain'],
+tukey = pairwise_tukeyhsd(endog=df_combined['Peak_amplitude'], 
+                          groups=df_combined['treatment'] + '-' + df_combined['Strain'],
                           alpha=0.05)
 
 print(tukey)
