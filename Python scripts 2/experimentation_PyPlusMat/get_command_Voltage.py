@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mar 24 2024
+
+@author: sayakaminegishi
+"""
+#pip install pyabf
+# pip install IPFX
+import pyabf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib import gridspec
+import scipy
+from scipy import signal
+from scipy.signal import find_peaks
+from scipy.optimize import curve_fit
+
+
+#load data
+def get_command_V(filepath):
+    abfdata = pyabf.ABF(filepath)
+    print(abfdata) #gtives info about abfdata, such as no. of sweeps, channels, duration
+    print(abfdata.sweepC)
+
+    for i in abfdata.sweepList:
+        abfdata.setSweep(i)
+        plt.plot(abfdata.sweepX, abfdata.sweepC, alpha=.5, label="sweep %d" % (i))
+    plt.legend()
+
+    plt.show()
+    return abfdata.sweepC
+
+
+commandv = get_command_V(filepath1)
+   
+   

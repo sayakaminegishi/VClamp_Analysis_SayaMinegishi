@@ -18,7 +18,7 @@ y_min = min(min(abf_control.sweepY), min(abf_treat.sweepY))
 y_max = max(max(abf_control.sweepY), max(abf_treat.sweepY)) + 100
 
 # Create figure and subplots
-fig, axs = plt.subplots(2, 1, figsize=(10, 8))
+fig, axs = plt.subplots(1, 2, figsize=(14, 6)) #1 row, 2 columns so horizontally aligned
 
 # Plot SHR control data
 axs[0].plot(abf_control.sweepX, abf_control.sweepY)

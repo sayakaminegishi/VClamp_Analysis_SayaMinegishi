@@ -34,17 +34,6 @@ file_path = '/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/ephys_anal
 df_SHR = pd.read_excel(file_path, sheet_name='SHR')
 df_WKY= pd.read_excel(file_path, sheet_name='WKY')
 
-# print(df_WKY.head())
-# print(df_SHR.head())
-
-# ########## categorize
-# df_SHR_C = df_SHR['CONTROL']
-# df_SHR_T = df_SHR['TREAT']
-# df_SHR_W = df_SHR['WASH']
-
-# df_WKY_C = df_WKY['control']
-# df_WKY_T = df_WKY['treat']
-# df_WKY_W = df_WKY['wash']
 
 # Ensure all DataFrames have the same columns
 all_columns = set(df_SHR.columns).union(set(df_WKY.columns))

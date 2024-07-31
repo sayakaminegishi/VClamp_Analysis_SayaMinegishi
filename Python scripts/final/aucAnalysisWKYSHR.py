@@ -29,7 +29,7 @@ from scipy import stats
 
 
 # Path to the Excel file
-file_path = '/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/ephys_analysis/areaUnderCurveAllDataSHRWKY.xlsx'
+file_path = '/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/ephys_analysis/areaUnderCurveAllDataSHRWKY copy.xlsx'
 
 # Read the Excel file
 # df_SHRC = pd.read_excel(file_path, sheet_name='shrControl')
@@ -110,7 +110,7 @@ palette = {"WKY": "#a1deff", "SHR": "#91ffa4"}
 
 # Create the side-by-side bar plot with custom colors
 plt.figure(figsize=(10, 6))
-sns.barplot(x='Treatment', y='current_density', hue='Strain', data=avg_current_density, palette=palette)
+sns.barplot(x='Treatment', y='current_density', hue='Strain', data=avg_current_density, palette=palette, ci=True)
 
 # Add labels and title
 plt.xlabel('Treatment Type')

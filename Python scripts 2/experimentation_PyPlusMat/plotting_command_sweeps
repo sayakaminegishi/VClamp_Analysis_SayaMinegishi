@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mar 24 2024
+
+@author: sayakaminegishi
+"""
+#pip install pyabf
+# pip install IPFX
+import pyabf
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib import gridspec
+import scipy
+from scipy import signal
+from scipy.signal import find_peaks
+from scipy.optimize import curve_fit
+
+
+#load data
+filepath = "/Users/sayakaminegishi/Documents/Birren Lab/Voltage clamp analysis/voltage clamp example data/2024_03_25_01_0000.abf"
+abfdata = pyabf.ABF(filepath)
+print(abfdata) #gtives info about abfdata, such as no. of sweeps, channels, duration
+print(abfdata.sweepC)
+
+for i in abfdata.sweepList:
+    abfdata.setSweep(i)
+    plt.plot(abfdata.sweepX, abfdata.sweepC, alpha=.5, label="sweep %d" % (i))
+plt.legend()
+
+plt.show()
+
+# # plot command (DAC) waveform
+# plt.subplot(212)
+# plt.plot(abfdata.sweepX, abfdata.sweepC, 'r')
+# plt.xlabel(abfdata.sweepLabelX)
+# plt.ylabel(abfdata.sweepLabelC)
+# #show all sweeps' command data
+# plt.figure(figsize=(8, 5))
+# plt.title("all sweeps")
+# plt.ylabel(abfdata.sweepLabelC)
+# plt.xlabel(abfdata.sweepLabelX)
+# for i in abfdata.sweepList:
+#     abfdata.setSweep(i)
+#     plt.plot(abfdata.sweepX, abfdata.sweepC, alpha=.5, label="sweep %d" % (i))
+# plt.legend()
+# plt.show()
+
+
+
+# #plot of 5th sweep
+# abfdata.setSweep(5)
+# plt.plot(abfdata.sweepX, abfdata.sweepC)
+# plt.xlabel(abfdata.sweepLabelX)
+# plt.ylabel(abfdata.sweepLabelC)
+# plt.show()
