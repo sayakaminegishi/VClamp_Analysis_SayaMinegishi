@@ -44,8 +44,8 @@ file_path = '/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/ephys_anal
 # df_WKYT= pd.read_excel(file_path, sheet_name='wkyTreat')
 # df_WKYW= pd.read_excel(file_path, sheet_name='wkyWash')
 
-df_SHR = pd.read_excel(file_path, sheet_name='SHRChange2')
-df_WKY = pd.read_excel(file_path, sheet_name='WKYChange2')
+df_SHR = pd.read_excel(file_path, sheet_name='shrSubt')
+df_WKY = pd.read_excel(file_path, sheet_name='wkySubt')
 
 
 # Ensure all DataFrames have the same columns
@@ -108,8 +108,6 @@ sem_ampChange = df_combined.groupby(['Treatment', 'Strain']).PercentChangeAmplit
 # Merge the averages and SEMs into a single DataFrame
 avg_ampChange['sem'] = sem_ampChange['PercentChangeAmplitude']
 
-# Filter out the control treatment if not needed
-avg_ampChange = avg_ampChange[avg_ampChange['Treatment'] != 'control']
 
 
 # Define custom colors
@@ -120,7 +118,6 @@ palette = {"WKY": "#2bdafc", "SHR": "#ff0f0f"}
 plt.figure(figsize=(10, 6))
 # setting font sizeto 30
 plt.rcParams.update({'font.size': 24})
-order = ['1PBC', 'washout']
 
 # x='Treatment'
 # y='PercentChangeAmplitude'
@@ -135,7 +132,7 @@ order = ['1PBC', 'washout']
 # plt.legend(title='Strain')
 
 # Create the bar plot
-ax = sns.barplot(x='Treatment', y='PercentChangeAmplitude', hue='Strain', data=avg_ampChange, palette=palette, ci=None, order=order)
+ax = sns.barplot(x='Treatment', y='PercentChangeAmplitude', hue='Strain', data=avg_ampChange, palette=palette)
 # Calculate the x-coordinates of the bars - ensure error bars are in the center of plot
 
 # Add error bars
