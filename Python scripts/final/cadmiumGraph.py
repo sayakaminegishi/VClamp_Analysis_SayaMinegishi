@@ -42,15 +42,27 @@ categories = ['Control', 'Cadmium', 'Washout']
 percentages = [control_percent, cd_percent, washout_percent]
 errors = [SEc, SEcd, SEw]
 
-# # Plotting
-# fig, ax = plt.subplots(figsize=(10, 7))
-# bars = ax.bar(categories, percentages, capsize=10, color='skyblue', edgecolor='black')
+# Plotting
+fig, ax = plt.subplots(figsize=(10, 7))
+plt.rcParams.update({'font.size': 20})
+bars = ax.bar(categories, percentages, capsize=10, color='#54e367', edgecolor='#59eb68')
 
-# # Adding labels and title
-# ax.set_ylabel('Percent Change in Current Amplitude(%)')
-# ax.set_title('Percent Change in Current Amplitude After Cd Addition in WKY')
-# ax.set_ylim(0, max(percentages) + 10)  # Adjust y-axis limit to fit error bars
+# Adding labels and title
+ax.set_ylabel('Percent Change in Current Amplitude (%)', fontweight='bold', fontsize=20)  # Larger font size
+ax.set_xlabel('Treatment Type', fontweight='bold', fontsize=20)  # Larger font size
+ax.set_title('Percent Change in Current Amplitude After Cd Addition in WKY', 
+             fontweight='bold', fontsize=23)  # Adjust the fontsize for title
 
-# plt.show()
+# Adjust tick parameters
+ax.tick_params(axis='both', which='major', labelsize=16)  # Increase tick label size
+
+# Optionally, adjust tick labels font size and rotation
+ax.set_xticklabels(categories, fontsize=16)  # Larger font size for x-axis labels
+ax.set_yticklabels(ax.get_yticks(), fontsize=16)  # Larger font size for y-axis labels
+
+# Set y-axis limits
+ax.set_ylim(0, max(percentages) + 10)  # Adjust y-axis limit to fit error bars
+
+plt.show()
 
 print(percentages)

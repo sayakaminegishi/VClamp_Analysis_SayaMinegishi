@@ -93,6 +93,14 @@ print(tukey)
 
 ###### find average for each category
 
+# # Calculate average %change in amp and standard error of the mean for each treatment and strain
+# avg_ampChange = df_combined.groupby(['Treatment', 'Strain']).PercentChangeAmplitude.mean().reset_index()
+# avg_ampChange = avg_ampChange[avg_ampChange['Treatment']!='control'] #remove rows for control
+# sem_ampChange = df_combined.groupby(['Treatment', 'Strain']).PercentChangeAmplitude.sem().reset_index()
+
+# # Merge the averages and SEMs into a single DataFrame
+# avg_ampChange['sem'] = sem_ampChange['PercentChangeAmplitude']
+
 # Calculate average %change in amp and standard error of the mean for each treatment and strain
 avg_ampChange = df_combined.groupby(['Treatment', 'Strain']).PercentChangeAmplitude.mean().reset_index()
 sem_ampChange = df_combined.groupby(['Treatment', 'Strain']).PercentChangeAmplitude.sem().reset_index()
@@ -100,21 +108,61 @@ sem_ampChange = df_combined.groupby(['Treatment', 'Strain']).PercentChangeAmplit
 # Merge the averages and SEMs into a single DataFrame
 avg_ampChange['sem'] = sem_ampChange['PercentChangeAmplitude']
 
+# Filter out the control treatment if not needed
+avg_ampChange = avg_ampChange[avg_ampChange['Treatment'] != 'control']
 
 
 # Define custom colors
-palette = {"WKY": "#a1deff", "SHR": "#adc3f7"}
+#palette = {"WKY": "#a1deff", "SHR": "#fc3030"}
+palette = {"WKY": "#2bdafc", "SHR": "#ff0f0f"}
 
 # Create the side-by-side bar plot with custom colors
 plt.figure(figsize=(10, 6))
-order = ['control', '1PBC', 'washout']
+# setting font sizeto 30
+plt.rcParams.update({'font.size': 24})
+order = ['1PBC', 'washout']
 
-sns.barplot(x='Treatment', y='PercentChangeAmplitude', hue='Strain', data=avg_ampChange, palette=palette, ci=True, order=order)
+# x='Treatment'
+# y='PercentChangeAmplitude'
+# sns.barplot(x='Treatment', y='PercentChangeAmplitude', hue='Strain', data=avg_ampChange, palette=palette, ci=True, order=order)
+# yerr1 = avg_ampChange['sem']
+# plt.errorbar(x,y,yerr=yerr1, fmt="o", color="black", markersize=8, capsize=20)
+
+# # Add labels and title
+# plt.xlabel('Treatment Type')
+# plt.ylabel('Percent amplitude change (%)')
+# plt.title('Average Percent Change in Current Amplitude by Treatment Type and Strain, 100mV input')
+# plt.legend(title='Strain')
+
+# Create the bar plot
+ax = sns.barplot(x='Treatment', y='PercentChangeAmplitude', hue='Strain', data=avg_ampChange, palette=palette, ci=None, order=order)
+# Calculate the x-coordinates of the bars - ensure error bars are in the center of plot
+
+# Add error bars
+# Calculate the x-coordinates of the bars
+x_coords = []
+for p in ax.patches:
+    width = p.get_width()
+    x_coords.append(p.get_x() + width / 2)
+
+# Add error bars - make sure y values are aligned
+for (i, p), (_, row) in zip(enumerate(ax.patches), avg_ampChange.iterrows()):
+    x = p.get_x() + p.get_width() / 2
+    y = p.get_height()
+    sem = row['sem']
+    ax.errorbar(x=x, y=y, yerr=sem, fmt="o", color="black", markersize=8, capsize=20)
 
 # Add labels and title
-plt.xlabel('Treatment Type')
-plt.ylabel('Percent amplitude change (%)')
-plt.title('Average Percent Change in Current Amplitude by Treatment Type and Strain, 100mV input')
+plt.xlabel('Treatment Type', fontweight = 'bold')
+plt.ylabel('Percent amplitude change (%)', fontweight = 'bold')
+plt.axhline(y = 100, color = '#15b034', linestyle = '--') 
+plt.title('Percent Change in Current Amplitude, 100mV Input', fontsize=24, fontweight = 'bold')
+plt.legend(title='Strain')
+
+# Adjust layout to fit title and labels
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+# Show the plot
 plt.legend(title='Strain')
 
 
@@ -123,12 +171,12 @@ plt.legend(title='Strain')
 plt.show()
 
 
-# Boxplot to visualize the data
-sns.boxplot(x='Treatment', y='PercentChangeAmplitude', hue='Strain', data=df_combined, palette=palette)
-plt.title('Boxplot of Percent Change in Amplitude by treatment type and strain, 100mV input')
-plt.xlabel('Treatment Type')
-plt.ylabel('Percent amplitude change (%)')
-plt.show()
+# # Boxplot to visualize the data
+# sns.boxplot(x='Treatment', y='PercentChangeAmplitude', hue='Strain', data=df_combined, palette=palette)
+# plt.title('Boxplot of Percent Change in Amplitude by treatment type and strain, 100mV input')
+# plt.xlabel('Treatment Type')
+# plt.ylabel('Percent amplitude change (%)')
+# plt.show()
 
 
 

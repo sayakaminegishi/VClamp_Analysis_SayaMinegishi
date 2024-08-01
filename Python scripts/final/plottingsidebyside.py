@@ -19,13 +19,13 @@ y_max = max(max(abf_control.sweepY), max(abf_treat.sweepY)) + 100
 
 # Create figure and subplots
 fig, axs = plt.subplots(1, 2, figsize=(14, 6)) #1 row, 2 columns so horizontally aligned
-
+plt.rcParams.update({'font.size': 24})
 # Plot SHR control data
 axs[0].plot(abf_control.sweepX, abf_control.sweepY)
 axs[0].set_title('SHR Control')
 axs[0].set_xlabel('Time (sec)')
 axs[0].set_ylabel('Current (pA)')
-axs[0].set_xlim([x_min, x_max])
+axs[0].set_xlim([x_min, 0.3])
 axs[0].set_ylim([y_min, y_max])
 
 # Plot SHR treated data
@@ -33,7 +33,7 @@ axs[1].plot(abf_treat.sweepX, abf_treat.sweepY)
 axs[1].set_title('SHR Treated')
 axs[1].set_xlabel('Time (sec)')
 axs[1].set_ylabel('Current (pA)')
-axs[1].set_xlim([x_min, x_max])
+axs[1].set_xlim([x_min, 0.3])
 axs[1].set_ylim([y_min, y_max])
 
 # Adjust layout and show plot

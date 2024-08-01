@@ -106,16 +106,33 @@ avg_current_density['sem'] = sem_current_density['current_density']
 
 
 # Define custom colors
-palette = {"WKY": "#a1deff", "SHR": "#91ffa4"}
+#palette = {"WKY": "#a1deff", "SHR": "#fc3d3d"}
+palette = {"WKY": "#2bdafc", "SHR": "#ff0f0f"}
+
 
 # Create the side-by-side bar plot with custom colors
 plt.figure(figsize=(10, 6))
-sns.barplot(x='Treatment', y='current_density', hue='Strain', data=avg_current_density, palette=palette, ci=True)
+plt.rcParams.update({'font.size': 24})
+
+# Create the bar plot
+ax = sns.barplot(x='Treatment', y='current_density', hue='Strain', data=avg_current_density, palette=palette)
+# Calculate the x-coordinates of the bars - ensure error bars are in the center of plot
+x_coords = []
+for p in ax.patches:
+    width = p.get_width()
+    x_coords.append(p.get_x() + width / 2)
+
+# Add error bars - make sure y values are aligned
+for (i, p), (_, row) in zip(enumerate(ax.patches), avg_current_density.iterrows()):
+    x = p.get_x() + p.get_width() / 2
+    y = p.get_height()
+    sem = row['sem']
+    ax.errorbar(x=x, y=y, yerr=sem, fmt="o", color="black", markersize=8, capsize=20)
 
 # Add labels and title
-plt.xlabel('Treatment Type')
-plt.ylabel('Average Current Density (pA/pF)')
-plt.title('Average Current Density by Treatment Type and Strain, 100mV input')
+plt.xlabel('Treatment Type', fontweight="bold")
+plt.ylabel('Average Current Density (pA/pF)', fontweight="bold")
+plt.title('Current Density at 100mV', fontweight = "bold")
 plt.legend(title='Strain')
 
 
@@ -132,13 +149,6 @@ plt.legend(title='Strain')
 # Show the plot
 plt.show()
 
-
-# Boxplot to visualize the data
-sns.boxplot(x='Treatment', y='current_density', hue='Strain', data=df_combined, palette=palette)
-plt.title('Boxplot of current_density(pA/pF) by treatment type and strain, 100mV input')
-plt.xlabel('Treatment Type')
-plt.ylabel('Current Density (pA/pF)')
-plt.show()
 
 
 
