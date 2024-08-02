@@ -1,7 +1,7 @@
 # VClamp_Analysis_SayaMinegishi
 Original matlab and python scripts for automatic analysis of voltage clamp traces.
 
-Note that some info in the headers are misleading because I reused some of the scripts for different analyses and I had no time to update the header info, I apologize. 
+Note that some info in the headers are misleading because I had no time to update it, I apologize. I will sometime though.
 
 Created by Sayaka (Saya) Minegishi
 minegishis@brandeis.edu
