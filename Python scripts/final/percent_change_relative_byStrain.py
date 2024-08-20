@@ -1,19 +1,10 @@
-'''TWO-WAY ANOVA for  1PBC - current densities
+'''TWO-WAY ANOVA for  1PBC - current densities WITH PERCENT CHANGE ACROSS TREATMENT GROUPS RELATIVE TO CONTROL FOR EACH STRAIN
 Sayaka (Saya) Minegishi
 developed with assistance of ChatGPT 
 
 *****
-the two independent variables:
-Group1: treatment type - 1PBC, Control, washout
-Group 2: strain - wky or shr
-measurement: mean current density
-
-
-Null Hypotheses:
-1. there is no difference in the mean of current_density(pA/pF) due to the treatment type
-2. There is no difference int he mean of the current_density(pA/pF) due to the strain type
-3. There is no interaction effect between the current_density(pA/pF) and the strain type
-
+% change in current density for each treatment type with respect to the control current density,
+ for each strain independently. Extension of aucAnalysisWKYSHR.py
 
 Assumptions: normality and equal SD <- probably not filled so use Krusal-wallis test
 
@@ -101,7 +92,42 @@ avg_current_density = df_combined.groupby(['Treatment', 'Strain']).current_densi
 sem_current_density = df_combined.groupby(['Treatment', 'Strain']).current_density.sem().reset_index()
 
 print(avg_current_density)
+
+
 print(avg_current_density.iloc[0]['current_density'])
+
+#find average current densities and record %change across groups with respect to the control
+
+#avg current densities by inspecting avg_current_density. 
+SHRControlID = avg_current_density.iloc[0]['current_density']
+SHRTreatID = avg_current_density.iloc[2]['current_density']
+SHRWashID = avg_current_density.iloc[4]['current_density']
+
+WKYControlID = avg_current_density.iloc[1]['current_density']
+WKYTreatID = avg_current_density.iloc[3]['current_density']
+WKYWashID = avg_current_density.iloc[5]['current_density']
+
+######PERCENT CHANGE CALCULATIONS #############
+
+# PERCENT OF CONTROL FOR TREAT AND WASH GROUPS, FOR EACH STRAIN
+pecentOfControl_treat_SHR =  (SHRTreatID/SHRControlID)*100 # if this is x, then there is a 100-x% decrease in SHR_treat relative to control. if >100, say x - 100 % increase
+pecentOfControl_wash_SHR = (SHRWashID/SHRControlID)*100
+
+pecentOfControl_treat_WKY =  (WKYTreatID/WKYControlID)*100 # if this is x, then there is a 100-x% decrease in SHR_treat relative to control. if >100, say x - 100 % increase
+pecentOfControl_wash_WKY = (WKYWashID/WKYControlID)*100
+
+# FIND PERCENT CHANGE
+percent_change_treat_SHR = 100 - pecentOfControl_treat_SHR
+percent_change_wash_SHR = 100 - pecentOfControl_wash_SHR
+percent_change_treat_WKY = 100 - pecentOfControl_treat_WKY
+percent_change_wash_WKY = 100 - pecentOfControl_wash_WKY
+
+# determine whether % increase or % decrease
+
+
+
+
+
 
 
 # Merge the averages and SEMs into a single DataFrame
