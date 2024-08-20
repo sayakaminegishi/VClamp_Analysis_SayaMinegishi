@@ -1,11 +1,16 @@
 # VClamp_Analysis_SayaMinegishi
 Original matlab and python scripts for automatic analysis of voltage clamp traces.
 
+Note that some info in the headers are misleading because I had no time to update it, I apologize. I will sometime though.
+
 Created by Sayaka (Saya) Minegishi
 minegishis@brandeis.edu
 
 ## Description of each Python script
-navigate to 'final' folder under python scripts. header shows description.
+Navigate to 'final' folder under python scripts. Header shows description.
+
+* PercentChangeAmpAnalysis.py: Conducts Two-way ANOVA for 
+
 ## Description of each Matlab script
 
 From Scripts folder, 
