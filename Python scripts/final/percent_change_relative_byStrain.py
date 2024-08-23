@@ -22,13 +22,6 @@ from scipy import stats
 # Path to the Excel file
 file_path = '/Users/sayakaminegishi/Documents/Birren Lab/CaCC project/ephys_analysis/areaUnderCurveAllDataSHRWKY copy.xlsx'
 
-# Read the Excel file
-# df_SHRC = pd.read_excel(file_path, sheet_name='shrControl')
-# df_SHRT = pd.read_excel(file_path, sheet_name='shrTreat')
-# df_SHRW = pd.read_excel(file_path, sheet_name='shrWash')
-# df_WKYC= pd.read_excel(file_path, sheet_name='wkyControl')
-# df_WKYT= pd.read_excel(file_path, sheet_name='wkyTreat')
-# df_WKYW= pd.read_excel(file_path, sheet_name='wkyWash')
 
 df_SHR = pd.read_excel(file_path, sheet_name='SHR')
 df_WKY = pd.read_excel(file_path, sheet_name='WKY')
@@ -72,8 +65,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-
-
 # Perform Tukey's HSD test
 tukey = pairwise_tukeyhsd(endog=df_combined['current_density'], 
                           groups=df_combined['Treatment'] + '-' + df_combined['Strain'],
@@ -109,6 +100,11 @@ WKYWashID = avg_current_density.iloc[5]['current_density']
 
 ######PERCENT CHANGE CALCULATIONS #############
 
+# Define custom colors
+#palette = {"WKY": "#a1deff", "SHR": "#fc3d3d"}
+palette = {"WKY": "#2bdafc", "SHR": "#ff0f0f"}
+
+
 # PERCENT OF CONTROL FOR TREAT AND WASH GROUPS, FOR EACH STRAIN
 pecentOfControl_treat_SHR =  (SHRTreatID/SHRControlID)*100 # if this is x, then there is a 100-x% decrease in SHR_treat relative to control. if >100, say x - 100 % increase
 pecentOfControl_wash_SHR = (SHRWashID/SHRControlID)*100
@@ -116,28 +112,38 @@ pecentOfControl_wash_SHR = (SHRWashID/SHRControlID)*100
 pecentOfControl_treat_WKY =  (WKYTreatID/WKYControlID)*100 # if this is x, then there is a 100-x% decrease in SHR_treat relative to control. if >100, say x - 100 % increase
 pecentOfControl_wash_WKY = (WKYWashID/WKYControlID)*100
 
-# FIND PERCENT CHANGE
-percent_change_treat_SHR = 100 - pecentOfControl_treat_SHR
-percent_change_wash_SHR = 100 - pecentOfControl_wash_SHR
-percent_change_treat_WKY = 100 - pecentOfControl_treat_WKY
-percent_change_wash_WKY = 100 - pecentOfControl_wash_WKY
-
-# determine whether % increase or % decrease
+# FIND PERCENT decrease
+percent_change_treat_SHR = 100-pecentOfControl_treat_SHR
+percent_change_wash_SHR = 100-pecentOfControl_wash_SHR
+percent_change_treat_WKY = 100-pecentOfControl_treat_WKY
+percent_change_wash_WKY = 100-pecentOfControl_wash_WKY
 
 
+categories = {'SHR_treat', 'SHR_wash', 'WKY_treat', 'WKY_wash'}
 
+percentdata = [['SHR_treat',percent_change_treat_SHR], ['SHR_wash', percent_change_wash_SHR], ['WKY_treat', percent_change_treat_WKY], ['WKY_wash',percent_change_wash_WKY ]]
+df_percentchange = pd.DataFrame(percentdata, columns = ['Treatment_Category', 'Percent_change_from_control'])
+print(df_percentchange)
 
+#graph percent decrease
+# Create the side-by-side bar plot with custom colors
+# plt.figure(figsize=(10, 6))
+# plt.rcParams.update({'font.size': 24})
+
+# Create the bar plot
+ax1 = df_percentchange.plot.bar(x = 'Treatment_Category', y='Percent_change_from_control', rot=0)
+
+#TODO: ASK HOW TO PUT ERROR BARS
+
+# Add labels and title
+plt.xlabel('Treatment Type', fontweight="bold")
+plt.ylabel('percent change (%)', fontweight="bold")
+plt.title('Percent change in current density relative to control at 100mV', fontweight = "bold")
 
 
 
 # Merge the averages and SEMs into a single DataFrame
 avg_current_density['sem'] = sem_current_density['current_density']
-
-
-
-# Define custom colors
-#palette = {"WKY": "#a1deff", "SHR": "#fc3d3d"}
-palette = {"WKY": "#2bdafc", "SHR": "#ff0f0f"}
 
 
 # Create the side-by-side bar plot with custom colors
@@ -164,17 +170,6 @@ plt.xlabel('Treatment Type', fontweight="bold")
 plt.ylabel('Average Current Density (pA/pF)', fontweight="bold")
 plt.title('Current Density at 100mV', fontweight = "bold")
 plt.legend(title='Strain')
-
-
-# # Overlay individual data points
-# sns.stripplot(x='Treatment', y='current_density', hue='Strain', data=df_combined, 
-#               dodge=True, palette=palette, alpha=0.6, linewidth=1, jitter=True)
-
-# # Add labels and title
-# plt.xlabel('Treatment Type')
-# plt.ylabel('Average Current Density (pA/pF)')
-# plt.title('Average Current Density by Treatment Type and Strain')
-# plt.legend(title='Strain', bbox_to_anchor=(1.05, 1), loc='upper left')
 
 # Show the plot
 plt.show()
