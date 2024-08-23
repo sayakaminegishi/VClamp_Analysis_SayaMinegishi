@@ -135,7 +135,7 @@ ax1 = df_percentchange.plot.bar(x = 'Treatment_Category', y='Percent_change_from
 # Add labels and title
 plt.xlabel('Treatment Type', fontweight="bold")
 plt.ylabel('percent change (%)', fontweight="bold")
-plt.title('Percent change in current density relative to control at 100mV', fontweight = "bold")
+plt.title('Percent decrease in current density relative to control at 100mV', fontweight = "bold")
 
 
 
