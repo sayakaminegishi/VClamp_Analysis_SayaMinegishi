@@ -126,9 +126,6 @@ df_percentchange = pd.DataFrame(percentdata, columns = ['Treatment_Category', 'P
 print(df_percentchange)
 
 #graph percent decrease
-# Create the side-by-side bar plot with custom colors
-# plt.figure(figsize=(10, 6))
-# plt.rcParams.update({'font.size': 24})
 
 # Create the bar plot
 ax1 = df_percentchange.plot.bar(x = 'Treatment_Category', y='Percent_change_from_control', rot=0)
